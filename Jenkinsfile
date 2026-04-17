@@ -30,22 +30,25 @@ node {
     }
 
     stage('Deploy') {
-        echo '>> Deploying to NGD application folder...'
+        echo '>> Copying files to NGD folder...'
         bat "xcopy /Y \"${WORKSPACE}\\index.html\" \"${DEPLOY_DIR}\\\" /I"
         bat "xcopy /Y \"${WORKSPACE}\\app.js\" \"${DEPLOY_DIR}\\\" /I"
         bat "xcopy /Y \"${WORKSPACE}\\styles.css\" \"${DEPLOY_DIR}\\\" /I"
 
-        echo '>> Restarting http-server...'
-        bat "for /f \"tokens=5\" %%a in ('netstat -aon ^| findstr \":${APP_PORT} \" ^| findstr \"LISTENING\"') do taskkill /F /PID %%a 2>nul || exit 0"
+        echo '>> Stopping old server if running...'
+        bat "taskkill /F /IM node.exe 2>nul & echo Server stopped || echo No server was running"
+
+        echo '>> Starting fresh http-server...'
         sleep 2
-        bat "start /B cmd /c \"npx http-server ${DEPLOY_DIR} -p ${APP_PORT} -c-1\" > nul 2>&1"
+        bat "start \"NGD\" cmd /c \"npx http-server ${DEPLOY_DIR} -p ${APP_PORT} -c-1\""
         sleep 3
     }
 
     stage('Smoke Test') {
         echo '>> Verifying site is live after deployment...'
-        bat "curl -sf http://localhost:${APP_PORT} -o nul && echo SMOKE TEST PASSED || (echo SMOKE TEST FAILED && exit 1)"
+        bat "curl -sf http://localhost:${APP_PORT} -o nul"
+        echo 'SMOKE TEST PASSED: Site is live!'
     }
 
-    echo 'PIPELINE PASSED: NovaCart deployed at http://localhost:3000'
+    echo 'PIPELINE COMPLETE: NovaCart deployed at http://localhost:3000'
 }
