@@ -36,19 +36,15 @@ node {
         bat "xcopy /Y \"${WORKSPACE}\\styles.css\" \"${DEPLOY_DIR}\\\" /I"
 
         echo '>> Restarting http-server...'
-        bat """
-            for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":${APP_PORT} " ^| findstr "LISTENING"') do (
-                taskkill /F /PID %%a 2>nul
-            )
-            timeout /t 2 /nobreak > nul
-            start /B cmd /c "npx http-server ${DEPLOY_DIR} -p ${APP_PORT} -c-1 > ${DEPLOY_DIR}\\server.log 2>&1"
-            timeout /t 3 /nobreak > nul
-        """
+        bat "for /f \"tokens=5\" %%a in ('netstat -aon ^| findstr \":${APP_PORT} \" ^| findstr \"LISTENING\"') do taskkill /F /PID %%a 2>nul || exit 0"
+        sleep 2
+        bat "start /B cmd /c \"npx http-server ${DEPLOY_DIR} -p ${APP_PORT} -c-1\" > nul 2>&1"
+        sleep 3
     }
 
     stage('Smoke Test') {
         echo '>> Verifying site is live after deployment...'
-        bat "curl -sf http://localhost:${APP_PORT} > nul && echo SMOKE TEST PASSED || (echo SMOKE TEST FAILED && exit 1)"
+        bat "curl -sf http://localhost:${APP_PORT} -o nul && echo SMOKE TEST PASSED || (echo SMOKE TEST FAILED && exit 1)"
     }
 
     echo 'PIPELINE PASSED: NovaCart deployed at http://localhost:3000'
