@@ -1,5 +1,5 @@
-// NovaCart CI/CD Pipeline (Scripted Pipeline)
-// Pulls code from GitHub, validates, checks CouchDB, deploys, and smoke tests
+// NovaCart CI/CD Pipeline
+// GitHub -> Jenkins -> Validate -> Deploy -> Verify
 
 node {
     def DEPLOY_DIR = 'C:\\Users\\suraj\\Desktop\\Misc\\NGD'
@@ -7,48 +7,34 @@ node {
     def COUCH_URL  = 'http://127.0.0.1:5984/ecommerce_catalog'
 
     stage('Checkout') {
-        echo '>> Pulling latest code from GitHub...'
+        echo 'Pulling latest code from GitHub...'
         checkout scm
-        bat 'dir'
     }
 
-    stage('Validate Syntax') {
-        echo '>> Checking JavaScript and HTML for syntax errors...'
+    stage('Validate') {
+        echo 'Checking for syntax errors...'
         bat 'node --check app.js'
-        bat "node -e \"require('fs').readFileSync('index.html', 'utf8'); console.log('HTML file OK')\""
-        bat "node -e \"require('fs').readFileSync('styles.css', 'utf8'); console.log('CSS file OK')\""
+        bat "node -e \"require('fs').readFileSync('index.html','utf8'); console.log('HTML OK')\""
+        bat "node -e \"require('fs').readFileSync('styles.css','utf8'); console.log('CSS OK')\""
     }
 
-    stage('Static Analysis') {
-        echo '>> Running linters to catch code quality issues...'
-        bat 'npx --yes htmlhint index.html || exit 0'
-    }
-
-    stage('CouchDB Health Check') {
-        echo '>> Verifying CouchDB is running and database exists...'
+    stage('CouchDB Check') {
+        echo 'Verifying CouchDB is running...'
         bat "curl -sf -u admin:admin ${COUCH_URL}"
+        echo 'CouchDB is healthy.'
     }
 
     stage('Deploy') {
-        echo '>> Copying files to NGD folder...'
-        bat "xcopy /Y \"${WORKSPACE}\\index.html\" \"${DEPLOY_DIR}\\\" /I"
-        bat "xcopy /Y \"${WORKSPACE}\\app.js\" \"${DEPLOY_DIR}\\\" /I"
-        bat "xcopy /Y \"${WORKSPACE}\\styles.css\" \"${DEPLOY_DIR}\\\" /I"
-
-        echo '>> Stopping old server if running...'
-        bat "taskkill /F /IM node.exe 2>nul & echo Server stopped || echo No server was running"
-
-        echo '>> Starting fresh http-server...'
-        sleep 2
-        bat "start \"NGD\" cmd /c \"npx http-server ${DEPLOY_DIR} -p ${APP_PORT} -c-1\""
-        sleep 3
+        echo 'Copying files to application server...'
+        bat "copy /Y \"${WORKSPACE}\\index.html\" \"${DEPLOY_DIR}\\index.html\""
+        bat "copy /Y \"${WORKSPACE}\\app.js\" \"${DEPLOY_DIR}\\app.js\""
+        bat "copy /Y \"${WORKSPACE}\\styles.css\" \"${DEPLOY_DIR}\\styles.css\""
+        echo 'Files deployed successfully.'
     }
 
     stage('Smoke Test') {
-        echo '>> Verifying site is live after deployment...'
-        bat "curl -sf http://localhost:${APP_PORT} -o nul"
-        echo 'SMOKE TEST PASSED: Site is live!'
+        echo 'Verifying application is live...'
+        bat "curl -sf http://localhost:${APP_PORT}"
+        echo 'Site is live on http://localhost:3000'
     }
-
-    echo 'PIPELINE COMPLETE: NovaCart deployed at http://localhost:3000'
 }
