@@ -1,0 +1,4 @@
+node_modules/
+server.log
+db-health.json
+.claude/settings.local.json

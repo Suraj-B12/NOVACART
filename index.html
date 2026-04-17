@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>NovaCart — E-Commerce Product Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=PT+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Promo Bar -->
+  <div class="promo-bar">
+    <p>Free Shipping on Orders Over ₹4,999 &nbsp;|&nbsp; Use Code <strong>NOVA25</strong> for 25% Off</p>
+  </div>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <nav class="container header-inner">
+      <div class="nav-left">
+        <button class="nav-link" id="nav-products-btn">PRODUCTS <svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+        <button class="nav-link" id="nav-categories-btn">CATEGORIES <svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      </div>
+      <a href="#" class="logo" onclick="showHome()">
+        <span class="logo-icon">&#9670;</span> NOVACART
+      </a>
+      <div class="nav-right">
+        <button class="nav-link" id="nav-analytics-btn" onclick="showAnalytics()">ANALYTICS</button>
+        <button class="nav-link" id="nav-dev-btn" onclick="showDevPanel()">DEV</button>
+        <button class="nav-link cart-btn" onclick="showCart()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Dropdown: Products -->
+    <div class="dropdown-menu" id="dropdown-products">
+      <div class="container dropdown-inner">
+        <div class="dropdown-col">
+          <h4>By Category</h4>
+          <div id="dropdown-categories-list"></div>
+        </div>
+        <div class="dropdown-col">
+          <h4>Quick Links</h4>
+          <a href="#" onclick="filterProducts('bestseller'); closeDropdowns()">Bestsellers</a>
+          <a href="#" onclick="filterProducts('new'); closeDropdowns()">New Arrivals</a>
+          <a href="#" onclick="filterProducts('sale'); closeDropdowns()">On Sale</a>
+        </div>
+        <div class="dropdown-col">
+          <a href="#" class="view-all-link" onclick="showAllProducts(); closeDropdowns()">View All Products &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dropdown: Categories -->
+    <div class="dropdown-menu" id="dropdown-categories">
+      <div class="container dropdown-inner" id="categories-dropdown-content"></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero" id="hero-section">
+      <div class="hero-overlay"></div>
+      <div class="container hero-content">
+        <p class="hero-label">CURATED COLLECTION</p>
+        <h1>The Ultimate<br>Product <em>Catalog.</em></h1>
+        <p class="hero-sub">Discover handpicked products across electronics, fashion, books, and home essentials.</p>
+        <button class="btn-primary" onclick="showAllProducts()">Shop Now</button>
+      </div>
+    </section>
+
+    <!-- Product Carousel -->
+    <section class="section product-carousel-section" id="featured-section">
+      <div class="container">
+        <p class="section-label">FEATURED PRODUCTS</p>
+        <h2 class="section-heading">Bestsellers</h2>
+        <div class="carousel-wrapper">
+          <button class="carousel-arrow carousel-prev" onclick="scrollCarousel(-1)">&#8249;</button>
+          <div class="product-carousel" id="product-carousel"></div>
+          <button class="carousel-arrow carousel-next" onclick="scrollCarousel(1)">&#8250;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Text-Image Split 1 -->
+    <section class="section text-image-split">
+      <div class="container split-grid">
+        <div class="split-text">
+          <p class="section-label">WHY DOCUMENT DATABASE</p>
+          <h2 class="section-heading">Flexible Schema Design</h2>
+          <p class="split-body">Unlike rigid relational databases, our catalog uses CouchDB — a document-oriented NoSQL database. Each product is stored as a JSON document with its own unique structure, allowing smartphones to have RAM specs while books have page counts, all in the same collection.</p>
+          <button class="btn-primary" onclick="showAnalytics()">View Analytics</button>
+        </div>
+        <div class="split-image">
+          <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80" alt="Database" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <!-- Text-Image Split 2 (reversed) -->
+    <section class="section text-image-split">
+      <div class="container split-grid split-reverse">
+        <div class="split-text">
+          <p class="section-label">MAPREDUCE VIEWS</p>
+          <h2 class="section-heading">Powerful Query Engine</h2>
+          <p class="split-body">CouchDB's MapReduce views enable complex aggregations — category statistics, revenue analytics, and real-time inventory tracking. Pre-computed indexes ensure lightning-fast queries even as the catalog scales.</p>
+          <button class="btn-primary" onclick="showAllProducts()">Explore Products</button>
+        </div>
+        <div class="split-image">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80" alt="Analytics" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Grid -->
+    <section class="section categories-section" id="categories-section">
+      <div class="container">
+        <p class="section-label">BROWSE BY</p>
+        <h2 class="section-heading">Categories</h2>
+        <div class="categories-grid" id="categories-grid"></div>
+      </div>
+    </section>
+
+    <!-- Text-Image Split 3 -->
+    <section class="section text-image-split">
+      <div class="container split-grid">
+        <div class="split-text">
+          <p class="section-label">REAL-TIME SYNC</p>
+          <h2 class="section-heading">Always Up to Date</h2>
+          <p class="split-body">CouchDB's replication protocol keeps data synchronized in real-time. Add a product from the admin panel and it instantly appears in the catalog. The built-in REST API makes it seamless to connect any frontend.</p>
+          <button class="btn-primary" onclick="document.getElementById('admin-section').scrollIntoView({behavior:'smooth'})">Manage Catalog</button>
+        </div>
+        <div class="split-image">
+          <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80" alt="Sync" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="section reviews-section" id="reviews-section">
+      <div class="container">
+        <div class="reviews-header">
+          <div>
+            <p class="section-label">CUSTOMER FEEDBACK</p>
+            <h2 class="section-heading">Reviews</h2>
+          </div>
+          <div class="reviews-rating-summary" id="reviews-rating-summary"></div>
+        </div>
+        <div class="carousel-wrapper">
+          <button class="carousel-arrow carousel-prev" onclick="scrollReviewCarousel(-1)">&#8249;</button>
+          <div class="review-carousel" id="review-carousel"></div>
+          <button class="carousel-arrow carousel-next" onclick="scrollReviewCarousel(1)">&#8250;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Section -->
+    <section class="section admin-section" id="admin-section">
+      <div class="container">
+        <p class="section-label">CATALOG MANAGEMENT</p>
+        <h2 class="section-heading">Add New Product</h2>
+        <form class="admin-form" id="add-product-form" onsubmit="addProduct(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Product Name</label>
+              <input type="text" id="f-name" required placeholder="e.g. Wireless Earbuds">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="f-category" required>
+                <option value="">Select category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Books">Books</option>
+                <option value="Home & Living">Home & Living</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Price (₹)</label>
+              <input type="number" id="f-price" required placeholder="99" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label>Stock</label>
+              <input type="number" id="f-stock" required placeholder="50" min="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="f-desc" required placeholder="Product description..." rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Image URL</label>
+            <input type="url" id="f-image" placeholder="https://images.unsplash.com/...">
+          </div>
+          <button type="submit" class="btn-primary">Add Product</button>
+          <span class="form-status" id="form-status"></span>
+        </form>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter-section">
+      <div class="container newsletter-inner">
+        <div class="newsletter-text">
+          <h2>Subscribe for exclusive offers and product updates</h2>
+          <p>Join our community and get early access to new arrivals.</p>
+        </div>
+        <form class="newsletter-form" onsubmit="event.preventDefault(); this.querySelector('.nl-btn').textContent='Subscribed!'; this.querySelector('.nl-btn').style.background='#22c55e';">
+          <input type="email" placeholder="Enter your email*" required>
+          <button type="submit" class="nl-btn">Subscribe</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- All Products Page (hidden by default) -->
+    <section class="section all-products-page" id="all-products-page" style="display:none;">
+      <div class="container">
+        <div class="products-header">
+          <div>
+            <p class="section-label" id="products-page-label">ALL PRODUCTS</p>
+            <h2 class="section-heading" id="products-page-heading">Our Collection</h2>
+          </div>
+          <div class="products-filters">
+            <select id="filter-category" onchange="applyMangoFilters()">
+              <option value="">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Books">Books</option>
+              <option value="Home & Living">Home & Living</option>
+            </select>
+            <select id="filter-subcategory" onchange="applyMangoFilters()">
+              <option value="">All Subcategories</option>
+            </select>
+            <select id="filter-sort" onchange="applyMangoFilters()">
+              <option value="name">Sort by Name</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Highest Rated</option>
+            </select>
+            <button class="filter-toggle-btn" onclick="toggleAdvancedFilters()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/></svg>
+              Advanced
+            </button>
+          </div>
+        </div>
+        <!-- Advanced Mango Filter Panel -->
+        <div class="mango-filter-panel" id="mango-filter-panel" style="display:none">
+          <div class="mango-filter-header">
+            <div class="mango-filter-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span>Mango Query Search</span>
+            </div>
+            <span class="mango-badge">CouchDB _find</span>
+          </div>
+          <div class="mango-filter-grid">
+            <div class="mango-filter-group">
+              <label>Search by Name</label>
+              <input type="text" id="mango-search" placeholder="e.g. iPhone, Nike, Sapiens..." oninput="debounceMangoSearch()">
+            </div>
+            <div class="mango-filter-group">
+              <label>Min Price (₹)</label>
+              <input type="number" id="mango-price-min" placeholder="0" min="0" onchange="applyMangoFilters()">
+            </div>
+            <div class="mango-filter-group">
+              <label>Max Price (₹)</label>
+              <input type="number" id="mango-price-max" placeholder="Any" min="0" onchange="applyMangoFilters()">
+            </div>
+            <div class="mango-filter-group">
+              <label>Min Rating</label>
+              <select id="mango-rating" onchange="applyMangoFilters()">
+                <option value="">Any</option>
+                <option value="3">★ 3+</option>
+                <option value="3.5">★ 3.5+</option>
+                <option value="4">★ 4+</option>
+                <option value="4.5">★ 4.5+</option>
+              </select>
+            </div>
+          </div>
+          <div class="mango-filter-actions">
+            <button class="mango-clear-btn" onclick="clearMangoFilters()">Clear All</button>
+            <button class="mango-search-btn" onclick="applyMangoFilters()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Search
+            </button>
+          </div>
+          <div class="mango-query-inspector" id="mango-query-inspector" style="display:none">
+            <div class="mango-inspector-header" onclick="toggleQueryInspector()">
+              <span>Query Inspector</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="mango-inspector-body" id="mango-inspector-body">
+              <div class="mango-inspector-section">
+                <div class="mango-inspector-label">MANGO SELECTOR</div>
+                <pre id="mango-query-json"></pre>
+              </div>
+              <div class="mango-inspector-section">
+                <div class="mango-inspector-label">INDEX USED</div>
+                <pre id="mango-explain-json"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Mango Results Info -->
+        <div class="mango-results-info" id="mango-results-info" style="display:none">
+          <span id="mango-results-count"></span>
+          <button class="mango-inspector-toggle" onclick="toggleQueryInspector()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            View Query
+          </button>
+        </div>
+        <div class="products-grid" id="products-grid"></div>
+        <button class="btn-secondary back-btn" onclick="showHome()">&larr; Back to Home</button>
+      </div>
+    </section>
+
+    <!-- Analytics Page (hidden by default) -->
+    <section class="section analytics-page" id="analytics-page" style="display:none;">
+      <div class="container">
+        <p class="section-label">COUCHDB ANALYTICS</p>
+        <h2 class="section-heading">Database Insights</h2>
+        <div class="analytics-grid" id="analytics-grid"></div>
+        <button class="btn-secondary back-btn" onclick="showHome()">&larr; Back to Home</button>
+      </div>
+    </section>
+
+    <!-- Dev Panel (hidden by default) -->
+    <section class="section dev-page" id="dev-page" style="display:none;">
+      <div class="container">
+        <p class="section-label">DEVELOPER CONSOLE</p>
+        <h2 class="section-heading">CouchDB Query Log</h2>
+
+        <!-- Why CouchDB Section -->
+        <div class="dev-why-section">
+          <h3>Why CouchDB?</h3>
+          <div class="dev-why-grid">
+            <div class="dev-why-card">
+              <div class="dev-why-icon">{ }</div>
+              <h4>Document-Oriented</h4>
+              <p>Stores data as JSON documents with flexible schemas. A smartphone and a book can live in the same collection with completely different fields — no migrations needed.</p>
+            </div>
+            <div class="dev-why-card">
+              <div class="dev-why-icon">GET</div>
+              <h4>Built-in REST API</h4>
+              <p>Every operation is an HTTP request. No drivers or ORMs needed — any language with HTTP support can talk to CouchDB directly from the browser.</p>
+            </div>
+            <div class="dev-why-card">
+              <div class="dev-why-icon">M/R</div>
+              <h4>MapReduce Views</h4>
+              <p>Pre-computed indexes using JavaScript map/reduce functions. Category stats, revenue aggregations, and stock alerts are computed once and cached by CouchDB.</p>
+            </div>
+            <div class="dev-why-card">
+              <div class="dev-why-icon">?</div>
+              <h4>Mango Queries</h4>
+              <p>MongoDB-style JSON query language via the <code>_find</code> endpoint. Supports selectors like <code>$gte</code>, <code>$regex</code>, and <code>$lte</code> with automatic index selection.</p>
+            </div>
+            <div class="dev-why-card">
+              <div class="dev-why-icon">MVCC</div>
+              <h4>Revision Control</h4>
+              <p>Every document update creates a new revision (<code>_rev</code>). No data is ever overwritten — CouchDB uses Multi-Version Concurrency Control for conflict-free writes.</p>
+            </div>
+            <div class="dev-why-card">
+              <div class="dev-why-icon">SYNC</div>
+              <h4>Replication</h4>
+              <p>Master-master replication built into the core. Databases can sync bidirectionally across servers, enabling offline-first apps and distributed architectures.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Reference (collapsible) -->
+        <div class="dev-ref-section">
+          <h3>Quick Reference</h3>
+          <div class="dev-ref-grid">
+            <div class="dev-ref-card" onclick="this.classList.toggle('open')">
+              <div class="dev-ref-card-header">Document Structure <span class="dev-ref-arrow">+</span></div>
+              <div class="dev-ref-card-body">
+                <p>All data stored as JSON documents in one database. A <code>type</code> field distinguishes them:</p>
+                <pre>// Product document
+{
+  "type": "product",
+  "name": "iPhone 16 Pro",
+  "category": "Electronics",
+  "subcategory": "Smartphones",
+  "price": 134900,
+  "currency": "INR",
+  "rating": 4.9,
+  "stock": 45,
+  "specs": { "Display": "6.3 inch",
+             "Chip": "A18 Pro" },
+  "tags": ["new", "bestseller"]
+}</pre>
+                <p>No fixed schema. A book has <code>specs.Pages</code>, a phone has <code>specs.RAM</code> — same collection, different shapes.</p>
+              </div>
+            </div>
+            <div class="dev-ref-card" onclick="this.classList.toggle('open')">
+              <div class="dev-ref-card-header">How couchFetch() Works <span class="dev-ref-arrow">+</span></div>
+              <div class="dev-ref-card-body">
+                <pre>async function couchFetch(path, options) {
+  // 1. Add auth + JSON headers
+  // 2. Measure response time
+  const res = await fetch(DB_URL + path, {
+    headers: {
+      'Authorization': 'Basic ...',
+      'Content-Type': 'application/json'
+    }
+  });
+  // 3. Log to CouchDB (shared log)
+  // 4. Return parsed JSON
+  return res.json();
+}</pre>
+                <p>Every CouchDB operation is a standard HTTP request. No drivers, no ORM — just <code>fetch()</code>.</p>
+              </div>
+            </div>
+            <div class="dev-ref-card" onclick="this.classList.toggle('open')">
+              <div class="dev-ref-card-header">MapReduce vs Mango <span class="dev-ref-arrow">+</span></div>
+              <div class="dev-ref-card-body">
+                <p><strong>MapReduce Views</strong> — Pre-computed indexes using JS functions. Best for known query patterns and aggregations (category stats, revenue totals). Indexed at write time.</p>
+                <p><strong>Mango Queries</strong> — MongoDB-style JSON selectors via <code>POST /_find</code>. Best for ad-hoc filtering (user search, price range, rating filter). Evaluated at query time.</p>
+                <p>NovaCart uses <strong>8 MapReduce views</strong> for analytics and <strong>4 Mango indexes</strong> for product search.</p>
+              </div>
+            </div>
+            <div class="dev-ref-card" onclick="this.classList.toggle('open')">
+              <div class="dev-ref-card-header">CouchDB vs SQL Comparison <span class="dev-ref-arrow">+</span></div>
+              <div class="dev-ref-card-body">
+                <pre>SQL:     SELECT * FROM products
+              WHERE category = 'Electronics'
+              AND price BETWEEN 20000 AND 50000
+
+CouchDB: POST /_find
+         { "selector": {
+             "type": "product",
+             "category": "Electronics",
+             "price": {"$gte":20000, "$lte":50000}
+         }}
+
+SQL:     SELECT category, AVG(price)
+              FROM products GROUP BY category
+
+CouchDB: GET /_design/catalog/
+              _view/category_stats?group=true
+         (uses MapReduce with custom reduce)</pre>
+              </div>
+            </div>
+            <div class="dev-ref-card" onclick="this.classList.toggle('open')">
+              <div class="dev-ref-card-header">MVCC &amp; Revisions <span class="dev-ref-arrow">+</span></div>
+              <div class="dev-ref-card-body">
+                <p>Every document has a <code>_rev</code> field (e.g., <code>"3-a1b2c3"</code>). Format: <code>{generation}-{hash}</code>.</p>
+                <pre>POST /db         → _rev: "1-abc"  (created)
+PUT  /db/id      → _rev: "2-def"  (updated)
+PUT  /db/id      → _rev: "3-ghi"  (updated)
+PUT  with rev 1  → 409 Conflict!  (stale)</pre>
+                <p><strong>Optimistic concurrency</strong> — no locks. First writer wins, second must re-read and retry. Old revisions kept until compaction.</p>
+              </div>
+            </div>
+            <div class="dev-ref-card" onclick="this.classList.toggle('open')">
+              <div class="dev-ref-card-header">HTTP Methods in CouchDB <span class="dev-ref-arrow">+</span></div>
+              <div class="dev-ref-card-body">
+                <p><strong class="dev-method-get">GET</strong> — Read data. Safe, idempotent. Used for views and document retrieval.</p>
+                <p><strong class="dev-method-post">POST</strong> — Create document (auto-ID) or execute query (_find, _index). Not idempotent.</p>
+                <p><strong class="dev-method-put">PUT</strong> — Create/update at specific URL. Requires <code>_rev</code> for updates. Idempotent.</p>
+                <p><strong class="dev-method-delete">DELETE</strong> — Soft delete — adds <code>_deleted: true</code>. Revision history preserved.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Query Log -->
+        <div class="dev-log-section">
+          <div class="dev-log-header">
+            <h3>Query Log</h3>
+            <div class="dev-log-controls">
+              <div class="dev-log-tabs">
+                <button class="dev-tab active" onclick="switchDevTab('live')">Live Queries</button>
+                <button class="dev-tab" onclick="switchDevTab('setup')">Setup Queries</button>
+              </div>
+              <span class="dev-conn connecting" id="dev-connection-status">Connecting...</span>
+              <span class="dev-last-updated" id="dev-last-updated"></span>
+              <button class="dev-clear-btn" onclick="pollDevLog()">↻ Refresh</button>
+              <button class="dev-clear-btn" onclick="clearQueryLog()">Clear</button>
+            </div>
+          </div>
+          <div class="dev-log-entries" id="dev-log-entries">
+            <div class="dev-log-empty"><div class="dev-live-indicator"></div>Listening for CouchDB queries...<br><small>Navigate the site in any browser to see queries appear here in real-time.</small></div>
+          </div>
+        </div>
+
+        <!-- Tunnel Config (only visible when not on localhost) -->
+        <div class="dev-tunnel-config" id="dev-tunnel-config" style="display:none">
+          <h3>Tunnel Configuration</h3>
+          <p>Set the CouchDB tunnel URL so this device can reach the database:</p>
+          <div class="dev-tunnel-input-row">
+            <input type="text" id="dev-tunnel-url" placeholder="https://xxx.trycloudflare.com" value="">
+            <button class="mango-search-btn" onclick="saveTunnelUrl()">Save &amp; Reload</button>
+          </div>
+          <p class="dev-tunnel-status" id="dev-tunnel-status"></p>
+        </div>
+
+        <button class="btn-secondary back-btn" onclick="showHome()">&larr; Back to Home</button>
+      </div>
+    </section>
+
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="product-modal" onclick="if(event.target===this)closeModal()">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-body" id="modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cart-overlay" onclick="if(event.target===this)closeCart()">
+      <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+          <h3>Your Cart</h3>
+          <button onclick="closeCart()">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-footer" id="cart-footer"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <span class="logo-icon">&#9670;</span> NOVACART
+        </div>
+        <p class="footer-tagline">A CouchDB-powered e-commerce product catalog demonstrating NoSQL document database capabilities.</p>
+        <div class="footer-social">
+          <a href="#">&#9679;</a>
+          <a href="#">&#9679;</a>
+          <a href="#">&#9679;</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Catalog</h4>
+        <a href="#" onclick="filterByCategory('Electronics')">Electronics</a>
+        <a href="#" onclick="filterByCategory('Clothing')">Clothing</a>
+        <a href="#" onclick="filterByCategory('Books')">Books</a>
+        <a href="#" onclick="filterByCategory('Home & Living')">Home & Living</a>
+      </div>
+      <div class="footer-col">
+        <h4>Database</h4>
+        <a href="http://127.0.0.1:5984/_utils/" target="_blank">CouchDB Fauxton</a>
+        <a href="#" onclick="showAnalytics()">Analytics Dashboard</a>
+        <a href="#" onclick="document.getElementById('admin-section').scrollIntoView({behavior:'smooth'})">Add Product</a>
+      </div>
+      <div class="footer-col">
+        <h4>Technology</h4>
+        <a href="https://couchdb.apache.org/" target="_blank">Apache CouchDB</a>
+        <a href="https://docs.couchdb.org/en/stable/ddocs/views/intro.html" target="_blank">MapReduce Views</a>
+        <a href="https://docs.couchdb.org/en/stable/api/index.html" target="_blank">REST API</a>
+        <a href="https://docs.couchdb.org/en/stable/intro/overview.html" target="_blank">Document Store</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; 2026 NovaCart. Built with Apache CouchDB. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
