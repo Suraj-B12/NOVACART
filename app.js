@@ -475,8 +475,141 @@ function renderCart() {
       <span>Total</span>
       <span>₹${formatINR(total)}</span>
     </div>
-    <button class="btn-primary" style="width:100%">Checkout</button>
+    <button class="btn-primary" style="width:100%" onclick="openCheckout()">Checkout</button>
   `;
+}
+
+// --- Checkout ---
+
+function openCheckout() {
+  if (cart.length === 0) return;
+  closeCart();
+  renderCheckoutSummary();
+  document.getElementById('checkout-status').textContent = '';
+  document.getElementById('checkout-status').className = 'checkout-status';
+  document.getElementById('checkout-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckout() {
+  document.getElementById('checkout-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderCheckoutSummary() {
+  const summaryEl = document.getElementById('checkout-summary');
+  const subtotal = cart.reduce((s, item) => s + item.price * item.qty, 0);
+  const shipping = subtotal >= 4999 ? 0 : 99;
+  const total = subtotal + shipping;
+
+  const itemsHtml = cart.map(item => `
+    <div class="checkout-summary-row">
+      <span>${item.name} × ${item.qty}</span>
+      <span>₹${formatINR(item.price * item.qty)}</span>
+    </div>
+  `).join('');
+
+  summaryEl.innerHTML = `
+    <div class="checkout-section-title">Order Summary</div>
+    ${itemsHtml}
+    <div class="checkout-summary-divider"></div>
+    <div class="checkout-summary-row">
+      <span>Subtotal</span>
+      <span>₹${formatINR(subtotal)}</span>
+    </div>
+    <div class="checkout-summary-row">
+      <span>Shipping</span>
+      <span>${shipping === 0 ? 'FREE' : '₹' + formatINR(shipping)}</span>
+    </div>
+    <div class="checkout-summary-divider"></div>
+    <div class="checkout-summary-total">
+      <span>Total</span>
+      <span>₹${formatINR(total)}</span>
+    </div>
+  `;
+}
+
+function formatCardNumber(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 16);
+  input.value = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+}
+
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
+  input.value = v;
+}
+
+async function submitOrder(event) {
+  event.preventDefault();
+
+  const submitBtn = document.getElementById('checkout-submit');
+  const statusEl = document.getElementById('checkout-status');
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Placing Order...';
+  statusEl.textContent = '';
+  statusEl.className = 'checkout-status';
+
+  const subtotal = cart.reduce((s, item) => s + item.price * item.qty, 0);
+  const shipping = subtotal >= 4999 ? 0 : 99;
+  const total = subtotal + shipping;
+
+  const order = {
+    _id: 'order:' + Date.now(),
+    type: 'order',
+    user_name: document.getElementById('ck-name').value.trim(),
+    user_email: document.getElementById('ck-email').value.trim(),
+    user_phone: document.getElementById('ck-phone').value.trim(),
+    items: cart.map(item => ({
+      product_id: item.id,
+      name: item.name,
+      quantity: item.qty,
+      price: item.price
+    })),
+    subtotal,
+    shipping_cost: shipping,
+    total,
+    status: 'pending',
+    payment_method: 'Credit Card',
+    shipping_address: [
+      document.getElementById('ck-address').value.trim(),
+      document.getElementById('ck-city').value.trim(),
+      document.getElementById('ck-pincode').value.trim()
+    ].filter(Boolean).join(', '),
+    ordered_at: new Date().toISOString(),
+    currency: 'INR'
+  };
+
+  try {
+    const res = await couchFetch('', { method: 'POST', body: JSON.stringify(order) });
+    if (!res.ok) throw new Error(res.reason || 'Failed to save order');
+
+    // Clear cart
+    cart = [];
+    localStorage.setItem('novacart_cart', JSON.stringify(cart));
+    updateCartCount();
+
+    // Show success state
+    const body = document.getElementById('checkout-body');
+    body.innerHTML = `
+      <div class="checkout-success">
+        <div class="checkout-success-icon">✓</div>
+        <h4>Order Placed Successfully</h4>
+        <p>Thank you, ${order.user_name.split(' ')[0]}. Your order is confirmed.</p>
+        <p>A confirmation has been sent to <strong>${order.user_email}</strong>.</p>
+        <div class="order-id">${order._id}</div>
+        <p style="margin-top:24px;">
+          <button class="btn-primary" onclick="closeCheckout(); showHome();">Continue Shopping</button>
+        </p>
+      </div>
+    `;
+  } catch (err) {
+    statusEl.textContent = 'Could not place order: ' + err.message;
+    statusEl.className = 'checkout-status error';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Place Order';
+  }
 }
 
 // --- Page Navigation ---

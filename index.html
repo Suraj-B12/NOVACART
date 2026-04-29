@@ -524,6 +524,81 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
         <div class="cart-footer" id="cart-footer"></div>
       </div>
     </div>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-overlay" id="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
+      <div class="checkout-modal" id="checkout-modal">
+        <div class="checkout-header">
+          <h3>Checkout</h3>
+          <button onclick="closeCheckout()" aria-label="Close">&times;</button>
+        </div>
+        <div class="checkout-body" id="checkout-body">
+          <form id="checkout-form" class="checkout-form" onsubmit="submitOrder(event)">
+
+            <div class="checkout-section">
+              <div class="checkout-section-title">Shipping Information</div>
+              <div class="checkout-grid-2">
+                <label class="checkout-field">
+                  <span>Full Name</span>
+                  <input type="text" id="ck-name" required autocomplete="name">
+                </label>
+                <label class="checkout-field">
+                  <span>Phone</span>
+                  <input type="tel" id="ck-phone" required pattern="[0-9 +-]{10,}" autocomplete="tel">
+                </label>
+              </div>
+              <label class="checkout-field">
+                <span>Email</span>
+                <input type="email" id="ck-email" required autocomplete="email">
+              </label>
+              <label class="checkout-field">
+                <span>Address</span>
+                <input type="text" id="ck-address" required autocomplete="street-address" placeholder="House no, Street, Area">
+              </label>
+              <div class="checkout-grid-2">
+                <label class="checkout-field">
+                  <span>City</span>
+                  <input type="text" id="ck-city" required autocomplete="address-level2">
+                </label>
+                <label class="checkout-field">
+                  <span>Pincode</span>
+                  <input type="text" id="ck-pincode" required pattern="[0-9]{6}" maxlength="6">
+                </label>
+              </div>
+            </div>
+
+            <div class="checkout-section">
+              <div class="checkout-section-title">Payment Details</div>
+              <label class="checkout-field">
+                <span>Card Number</span>
+                <input type="text" id="ck-card" required maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)">
+              </label>
+              <div class="checkout-grid-2">
+                <label class="checkout-field">
+                  <span>Expiry (MM/YY)</span>
+                  <input type="text" id="ck-expiry" required maxlength="5" placeholder="12/28" oninput="formatExpiry(this)">
+                </label>
+                <label class="checkout-field">
+                  <span>CVV</span>
+                  <input type="password" id="ck-cvv" required maxlength="4" pattern="[0-9]{3,4}" placeholder="•••">
+                </label>
+              </div>
+              <div class="checkout-note">Demo only. No real payment is processed.</div>
+            </div>
+
+            <div class="checkout-section checkout-summary" id="checkout-summary">
+              <!-- order summary injected here -->
+            </div>
+
+            <div id="checkout-status" class="checkout-status"></div>
+
+            <button type="submit" class="btn-primary checkout-submit" id="checkout-submit">
+              Place Order
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Footer -->
