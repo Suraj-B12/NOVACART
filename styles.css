@@ -1699,7 +1699,6 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .ck-card[data-brand="mastercard"] .ck-card-brand {
   width: 56px;
   height: 36px;
-  position: relative;
 }
 
 .ck-card[data-brand="mastercard"] .ck-card-brand::before,
@@ -1743,7 +1742,6 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .ck-card[data-brand="maestro"] .ck-card-brand {
   width: 56px;
   height: 36px;
-  position: relative;
 }
 
 .ck-card[data-brand="maestro"] .ck-card-brand::before,
