@@ -28,7 +28,6 @@ let allProducts = [];
 let allCategories = [];
 let allReviews = [];
 let cart = [];
-const broken_demo = ;
 try { cart = JSON.parse(localStorage.getItem('novacart_cart') || '[]'); } catch (e) { cart = []; }
 
 // --- Query Log (shared via CouchDB) ---
