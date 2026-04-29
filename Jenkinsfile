@@ -1,40 +1,77 @@
 // NovaCart CI/CD Pipeline
-// GitHub -> Jenkins -> Validate -> Deploy -> Verify
+// GitHub -> Poll every 1 min -> Validate -> Deploy -> Verify
+// Each stage does ONE thing. Console output kept short.
 
-node {
-    def DEPLOY_DIR = 'C:\\Users\\suraj\\Desktop\\Misc\\NGD'
-    def APP_PORT   = '3000'
-    def COUCH_URL  = 'http://127.0.0.1:5984/ecommerce_catalog'
+pipeline {
+    agent any
 
-    stage('Checkout') {
-        echo 'Pulling latest code from GitHub...'
-        checkout scm
+    triggers {
+        pollSCM('* * * * *')   // Check GitHub every 1 minute
     }
 
-    stage('Validate') {
-        echo 'Checking for syntax errors...'
-        bat 'node --check app.js'
-        bat "node -e \"require('fs').readFileSync('index.html','utf8'); console.log('HTML OK')\""
-        bat "node -e \"require('fs').readFileSync('styles.css','utf8'); console.log('CSS OK')\""
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
-    stage('CouchDB Check') {
-        echo 'Verifying CouchDB is running...'
-        bat "curl -sf -u admin:admin ${COUCH_URL}"
-        echo 'CouchDB is healthy.'
+    environment {
+        DEPLOY_DIR = 'C:\\Users\\suraj\\Desktop\\Misc\\NGD'
+        APP_PORT   = '3000'
+        COUCH_URL  = 'http://127.0.0.1:5984/ecommerce_catalog'
     }
 
-    stage('Deploy') {
-        echo 'Copying files to application server...'
-        bat "copy /Y \"${WORKSPACE}\\index.html\" \"${DEPLOY_DIR}\\index.html\""
-        bat "copy /Y \"${WORKSPACE}\\app.js\" \"${DEPLOY_DIR}\\app.js\""
-        bat "copy /Y \"${WORKSPACE}\\styles.css\" \"${DEPLOY_DIR}\\styles.css\""
-        echo 'Files deployed successfully.'
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Pulling latest code from GitHub...'
+                checkout scm
+                echo 'Checkout complete.'
+            }
+        }
+
+        stage('Validate') {
+            steps {
+                echo 'Checking JS syntax...'
+                bat(script: 'node --check app.js', returnStatus: false)
+                echo 'JS syntax OK.'
+            }
+        }
+
+        stage('CouchDB Check') {
+            steps {
+                echo 'Pinging CouchDB...'
+                bat(script: "curl -sf -o nul -u admin:admin ${COUCH_URL}", returnStatus: false)
+                echo 'CouchDB is reachable.'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Copying files to NGD application server...'
+                bat(script: "copy /Y \"${WORKSPACE}\\index.html\" \"${DEPLOY_DIR}\\index.html\" > nul", returnStatus: false)
+                bat(script: "copy /Y \"${WORKSPACE}\\app.js\"      \"${DEPLOY_DIR}\\app.js\"      > nul", returnStatus: false)
+                bat(script: "copy /Y \"${WORKSPACE}\\styles.css\"  \"${DEPLOY_DIR}\\styles.css\"  > nul", returnStatus: false)
+                echo '3 files deployed.'
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                echo 'Verifying site is live...'
+                bat(script: "curl -sf -o nul http://localhost:${APP_PORT}", returnStatus: false)
+                echo "Site is live on http://localhost:${APP_PORT}"
+            }
+        }
     }
 
-    stage('Smoke Test') {
-        echo 'Verifying application is live...'
-        bat "curl -sf http://localhost:${APP_PORT}"
-        echo 'Site is live on http://localhost:3000'
+    post {
+        success {
+            echo 'PIPELINE PASSED - NovaCart deployed.'
+        }
+        failure {
+            echo 'PIPELINE FAILED - check the failed stage above.'
+        }
     }
 }
