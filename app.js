@@ -479,14 +479,37 @@ function renderCart() {
   `;
 }
 
-// --- Checkout ---
+// =================== CHECKOUT (multi-step + animations) ===================
+
+let ckCurrentStep = 1;
 
 function openCheckout() {
   if (cart.length === 0) return;
   closeCart();
-  renderCheckoutSummary();
+
+  // Reset to step 1
+  ckCurrentStep = 1;
+  showCheckoutStep(1);
+
+  // Reset form state
+  document.querySelectorAll('.ck-field').forEach(f => {
+    f.classList.remove('ck-valid', 'ck-invalid', 'ck-shake');
+    const fb = f.querySelector('.ck-feedback');
+    if (fb) fb.textContent = '';
+    const inp = f.querySelector('input');
+    if (inp) inp.value = '';
+  });
+  document.getElementById('ck-card-display').textContent = '•••• •••• •••• ••••';
+  document.getElementById('ck-name-display').textContent = 'YOUR NAME';
+  document.getElementById('ck-expiry-display').textContent = 'MM/YY';
+  document.getElementById('ck-cvv-display').textContent = '•••';
+  document.getElementById('ck-card-brand').textContent = '';
+  document.getElementById('ck-card-brand-icon').classList.remove('show');
+  document.getElementById('ck-card-preview').dataset.brand = '';
+  document.getElementById('ck-card-preview').classList.remove('flipped');
   document.getElementById('checkout-status').textContent = '';
   document.getElementById('checkout-status').className = 'checkout-status';
+
   document.getElementById('checkout-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -496,64 +519,320 @@ function closeCheckout() {
   document.body.style.overflow = '';
 }
 
-function renderCheckoutSummary() {
-  const summaryEl = document.getElementById('checkout-summary');
+// --- Step navigation ---
+
+function showCheckoutStep(n) {
+  document.querySelectorAll('.ck-step').forEach(s => s.classList.remove('ck-step-active'));
+  const target = document.getElementById('ck-step-' + n);
+  if (target) target.classList.add('ck-step-active');
+
+  const isSuccess = n === 'success';
+  const numericN = isSuccess ? 4 : n;
+
+  // Progress bar state
+  document.querySelectorAll('.checkout-step-label').forEach(label => {
+    const step = parseInt(label.dataset.step);
+    label.classList.remove('active', 'complete');
+    if (step < numericN) label.classList.add('complete');
+    if (step === numericN) label.classList.add('active');
+  });
+
+  const fill1 = document.getElementById('ck-progress-fill');
+  const fill2 = document.getElementById('ck-progress-fill-2');
+  if (fill1) fill1.classList.toggle('fill', numericN >= 2);
+  if (fill2) fill2.classList.toggle('fill', numericN >= 3);
+
+  if (!isSuccess) ckCurrentStep = n;
+}
+
+function goToStep(n) {
+  if (n > ckCurrentStep) {
+    // Validate current step before moving forward
+    if (!validateStep(ckCurrentStep)) return;
+  }
+  if (n === 3) renderReview();
+  showCheckoutStep(n);
+}
+
+function validateStep(step) {
+  const fields = step === 1
+    ? ['ck-name', 'ck-phone', 'ck-email', 'ck-address', 'ck-city', 'ck-pincode']
+    : step === 2
+    ? ['ck-card', 'ck-cardname', 'ck-expiry', 'ck-cvv']
+    : [];
+
+  let allValid = true;
+  fields.forEach(id => {
+    const inp = document.getElementById(id);
+    const wrapper = inp.closest('.ck-field');
+    const kind = id.replace('ck-', '');
+    const ok = liveValidate(inp, kind);
+    if (!ok) {
+      allValid = false;
+      wrapper.classList.add('ck-shake');
+      setTimeout(() => wrapper.classList.remove('ck-shake'), 400);
+    }
+  });
+  return allValid;
+}
+
+// --- Live validation ---
+
+function liveValidate(input, kind) {
+  const wrapper = input.closest('.ck-field');
+  const fb = wrapper.querySelector('.ck-feedback');
+  const v = input.value.trim();
+
+  let valid = false;
+  let msg = '';
+
+  switch (kind) {
+    case 'name':
+      valid = v.length >= 2 && /^[a-zA-Z\s.'-]+$/.test(v);
+      msg = valid ? 'Looks good' : (v ? 'Use letters only' : '');
+      break;
+    case 'phone':
+      valid = /^[0-9]{10}$/.test(v);
+      msg = valid ? 'Valid number' : (v ? 'Need 10 digits' : '');
+      break;
+    case 'email':
+      valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      msg = valid ? 'Looks good' : (v ? 'Invalid email' : '');
+      break;
+    case 'address':
+      valid = v.length >= 5;
+      msg = valid ? 'Got it' : (v ? 'Too short' : '');
+      break;
+    case 'city':
+      valid = v.length >= 2 && /^[a-zA-Z\s]+$/.test(v);
+      msg = valid ? '' : (v ? 'Letters only' : '');
+      break;
+    case 'pincode':
+      valid = /^[0-9]{6}$/.test(v);
+      msg = valid ? 'Valid' : (v ? '6 digits required' : '');
+      break;
+    case 'card': {
+      const digits = v.replace(/\D/g, '');
+      const brand = detectCardBrand(digits);
+      const expectedLen = brand === 'amex' ? 15 : 16;
+      valid = digits.length === expectedLen && luhnCheck(digits);
+      msg = valid ? 'Card verified ✓' : (digits.length >= 13 ? 'Invalid card' : (digits ? `${digits.length}/${expectedLen} digits` : ''));
+      break;
+    }
+    case 'cardname':
+      valid = v.length >= 2;
+      msg = valid ? '' : (v ? 'Too short' : '');
+      break;
+    case 'expiry': {
+      const m = v.match(/^(\d{2})\/(\d{2})$/);
+      if (!m) { valid = false; msg = v ? 'Format MM/YY' : ''; break; }
+      const month = parseInt(m[1]);
+      const year = 2000 + parseInt(m[2]);
+      if (month < 1 || month > 12) { valid = false; msg = 'Bad month'; break; }
+      const now = new Date();
+      const expEnd = new Date(year, month, 0, 23, 59, 59);
+      valid = expEnd >= now;
+      msg = valid ? 'Valid' : 'Card expired';
+      break;
+    }
+    case 'cvv': {
+      const isAmex = document.getElementById('ck-card-preview').dataset.brand === 'amex';
+      valid = isAmex ? /^[0-9]{4}$/.test(v) : /^[0-9]{3}$/.test(v);
+      msg = valid ? '' : (v ? `Need ${isAmex ? 4 : 3} digits` : '');
+      break;
+    }
+  }
+
+  if (valid) {
+    wrapper.classList.add('ck-valid');
+    wrapper.classList.remove('ck-invalid');
+  } else {
+    wrapper.classList.remove('ck-valid');
+    if (v) wrapper.classList.add('ck-invalid');
+    else   wrapper.classList.remove('ck-invalid');
+  }
+  if (fb) fb.textContent = msg;
+  return valid;
+}
+
+// --- Card brand detection ---
+
+function detectCardBrand(digits) {
+  if (!digits) return '';
+  if (/^4/.test(digits)) return 'visa';
+  if (/^(5[1-5]|2[2-7])/.test(digits)) return 'mastercard';
+  if (/^3[47]/.test(digits)) return 'amex';
+  if (/^6(011|5|4[4-9])/.test(digits)) return 'discover';
+  if (/^(60|65|81|82)/.test(digits)) return 'rupay';
+  return '';
+}
+
+// --- Luhn algorithm ---
+
+function luhnCheck(digits) {
+  if (!digits || digits.length < 13) return false;
+  let sum = 0;
+  let alt = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = parseInt(digits[i]);
+    if (alt) { d *= 2; if (d > 9) d -= 9; }
+    sum += d;
+    alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+
+// --- Card preview live updates ---
+
+function onCardNumberInput(input) {
+  let raw = input.value.replace(/\D/g, '');
+  const brand = detectCardBrand(raw);
+  const card = document.getElementById('ck-card-preview');
+  card.dataset.brand = brand;
+
+  // Brand label inside the card
+  const brandEl = document.getElementById('ck-card-brand');
+  brandEl.textContent = brand ? brand.toUpperCase() : '';
+
+  // Brand icon next to input field
+  const iconEl = document.getElementById('ck-card-brand-icon');
+  iconEl.dataset.brand = brand;
+  iconEl.textContent = brand ? brand.toUpperCase() : '';
+  iconEl.classList.toggle('show', !!brand);
+
+  // Format input value
+  const maxLen = brand === 'amex' ? 15 : 16;
+  raw = raw.slice(0, maxLen);
+
+  let formatted;
+  if (brand === 'amex') {
+    formatted = raw.replace(/(\d{4})(\d{6})?(\d{0,5})?/, (_, a, b, c) => [a, b, c].filter(Boolean).join(' '));
+  } else {
+    formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+  }
+  input.value = formatted;
+
+  // Update card display
+  const display = document.getElementById('ck-card-display');
+  if (raw.length === 0) {
+    display.textContent = '•••• •••• •••• ••••';
+  } else {
+    let padded = raw.padEnd(maxLen, '•');
+    if (brand === 'amex') {
+      padded = padded.slice(0, 4) + ' ' + padded.slice(4, 10) + ' ' + padded.slice(10, 15);
+    } else {
+      padded = padded.match(/.{1,4}/g).join(' ');
+    }
+    display.textContent = padded;
+  }
+
+  // Adjust CVV maxlength for Amex (4 digits)
+  document.getElementById('ck-cvv').maxLength = brand === 'amex' ? 4 : 3;
+
+  liveValidate(input, 'card');
+}
+
+function onCardNameInput(input) {
+  const display = document.getElementById('ck-name-display');
+  display.textContent = input.value.trim() ? input.value.toUpperCase() : 'YOUR NAME';
+}
+
+function onExpiryInput(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
+  input.value = v;
+  document.getElementById('ck-expiry-display').textContent = v || 'MM/YY';
+  liveValidate(input, 'expiry');
+}
+
+function onCvvInput(input) {
+  const v = input.value.replace(/\D/g, '');
+  input.value = v;
+  document.getElementById('ck-cvv-display').textContent = v ? '•'.repeat(v.length) : '•••';
+  liveValidate(input, 'cvv');
+}
+
+function flipCard(showBack) {
+  const card = document.getElementById('ck-card-preview');
+  if (!card) return;
+  card.classList.toggle('flipped', !!showBack);
+}
+
+// --- Review step ---
+
+function renderReview() {
   const subtotal = cart.reduce((s, item) => s + item.price * item.qty, 0);
   const shipping = subtotal >= 4999 ? 0 : 99;
   const total = subtotal + shipping;
 
+  // Shipping
+  const name    = document.getElementById('ck-name').value.trim();
+  const phone   = document.getElementById('ck-phone').value.trim();
+  const email   = document.getElementById('ck-email').value.trim();
+  const address = document.getElementById('ck-address').value.trim();
+  const city    = document.getElementById('ck-city').value.trim();
+  const pincode = document.getElementById('ck-pincode').value.trim();
+
+  document.getElementById('ck-review-shipping').innerHTML = `
+    <h4>Delivering To</h4>
+    <div class="ck-review-row"><span class="ck-review-label">Name</span><span>${escapeHtml(name)}</span></div>
+    <div class="ck-review-row"><span class="ck-review-label">Phone</span><span>${escapeHtml(phone)}</span></div>
+    <div class="ck-review-row"><span class="ck-review-label">Email</span><span>${escapeHtml(email)}</span></div>
+    <div class="ck-review-row"><span class="ck-review-label">Address</span><span>${escapeHtml(address)}, ${escapeHtml(city)} - ${escapeHtml(pincode)}</span></div>
+  `;
+
+  // Payment
+  const cardDigits = document.getElementById('ck-card').value.replace(/\D/g, '');
+  const last4 = cardDigits.slice(-4);
+  const brand = detectCardBrand(cardDigits);
+
+  document.getElementById('ck-review-payment').innerHTML = `
+    <h4>Paying With</h4>
+    <div class="ck-review-row"><span class="ck-review-label">${(brand || 'card').toUpperCase()}</span><span>•••• •••• •••• ${last4}</span></div>
+  `;
+
+  // Summary
   const itemsHtml = cart.map(item => `
-    <div class="checkout-summary-row">
-      <span>${item.name} × ${item.qty}</span>
+    <div class="ck-review-row">
+      <span>${escapeHtml(item.name)} × ${item.qty}</span>
       <span>₹${formatINR(item.price * item.qty)}</span>
     </div>
   `).join('');
 
-  summaryEl.innerHTML = `
-    <div class="checkout-section-title">Order Summary</div>
+  document.getElementById('ck-review-summary').innerHTML = `
+    <h4>Order Summary</h4>
     ${itemsHtml}
-    <div class="checkout-summary-divider"></div>
-    <div class="checkout-summary-row">
-      <span>Subtotal</span>
-      <span>₹${formatINR(subtotal)}</span>
-    </div>
-    <div class="checkout-summary-row">
-      <span>Shipping</span>
-      <span>${shipping === 0 ? 'FREE' : '₹' + formatINR(shipping)}</span>
-    </div>
-    <div class="checkout-summary-divider"></div>
-    <div class="checkout-summary-total">
-      <span>Total</span>
-      <span>₹${formatINR(total)}</span>
-    </div>
+    <div class="ck-review-divider"></div>
+    <div class="ck-review-row"><span class="ck-review-label">Subtotal</span><span>₹${formatINR(subtotal)}</span></div>
+    <div class="ck-review-row"><span class="ck-review-label">Shipping</span><span>${shipping === 0 ? 'FREE' : '₹' + formatINR(shipping)}</span></div>
+    <div class="ck-review-divider"></div>
+    <div class="ck-review-total"><span>Total</span><span>₹${formatINR(total)}</span></div>
   `;
 }
 
-function formatCardNumber(input) {
-  let v = input.value.replace(/\D/g, '').slice(0, 16);
-  input.value = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function formatExpiry(input) {
-  let v = input.value.replace(/\D/g, '').slice(0, 4);
-  if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
-  input.value = v;
-}
+// --- Submit ---
 
 async function submitOrder(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
 
   const submitBtn = document.getElementById('checkout-submit');
   const statusEl = document.getElementById('checkout-status');
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Placing Order...';
+  submitBtn.classList.add('loading');
   statusEl.textContent = '';
   statusEl.className = 'checkout-status';
 
   const subtotal = cart.reduce((s, item) => s + item.price * item.qty, 0);
   const shipping = subtotal >= 4999 ? 0 : 99;
   const total = subtotal + shipping;
+
+  const cardDigits = document.getElementById('ck-card').value.replace(/\D/g, '');
+  const cardBrand = detectCardBrand(cardDigits) || 'card';
 
   const order = {
     _id: 'order:' + Date.now(),
@@ -571,7 +850,8 @@ async function submitOrder(event) {
     shipping_cost: shipping,
     total,
     status: 'pending',
-    payment_method: 'Credit Card',
+    payment_method: cardBrand.charAt(0).toUpperCase() + cardBrand.slice(1) + ' Card',
+    card_last4: cardDigits.slice(-4),
     shipping_address: [
       document.getElementById('ck-address').value.trim(),
       document.getElementById('ck-city').value.trim(),
@@ -582,6 +862,9 @@ async function submitOrder(event) {
   };
 
   try {
+    // Small intentional delay for that satisfying processing feel
+    await new Promise(r => setTimeout(r, 800));
+
     const res = await couchFetch('', { method: 'POST', body: JSON.stringify(order) });
     if (!res.ok) throw new Error(res.reason || 'Failed to save order');
 
@@ -590,26 +873,63 @@ async function submitOrder(event) {
     localStorage.setItem('novacart_cart', JSON.stringify(cart));
     updateCartCount();
 
-    // Show success state
-    const body = document.getElementById('checkout-body');
-    body.innerHTML = `
-      <div class="checkout-success">
-        <div class="checkout-success-icon">✓</div>
-        <h4>Order Placed Successfully</h4>
-        <p>Thank you, ${order.user_name.split(' ')[0]}. Your order is confirmed.</p>
-        <p>A confirmation has been sent to <strong>${order.user_email}</strong>.</p>
-        <div class="order-id">${order._id}</div>
-        <p style="margin-top:24px;">
-          <button class="btn-primary" onclick="closeCheckout(); showHome();">Continue Shopping</button>
-        </p>
-      </div>
-    `;
+    // Show success step + confetti
+    document.getElementById('ck-success-message').textContent =
+      `Thank you, ${order.user_name.split(' ')[0]}. We've sent a confirmation to ${order.user_email}.`;
+    document.getElementById('ck-success-orderid').textContent = order._id;
+
+    showCheckoutStep('success');
+    launchConfetti();
   } catch (err) {
     statusEl.textContent = 'Could not place order: ' + err.message;
     statusEl.className = 'checkout-status error';
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Place Order';
+    submitBtn.classList.remove('loading');
   }
+}
+
+// --- Confetti ---
+
+function launchConfetti() {
+  const container = document.getElementById('ck-confetti');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const colors = ['#C45A34', '#2D3347', '#4CAF50', '#FFC107', '#2196F3', '#E91E63', '#9C27B0'];
+  const pieces = 80;
+
+  for (let i = 0; i < pieces; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'ck-confetti-piece';
+    const left = Math.random() * 100;
+    const delay = Math.random() * 0.6;
+    const duration = 2.4 + Math.random() * 1.2;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const rotate = Math.random() * 360;
+    const sway = (Math.random() - 0.5) * 80;
+
+    piece.style.left = left + '%';
+    piece.style.background = color;
+    piece.style.animationDelay = delay + 's';
+    piece.style.animationDuration = duration + 's';
+    piece.style.transform = `rotate(${rotate}deg)`;
+    piece.style.setProperty('--sway', sway + 'px');
+
+    // Random shape variety
+    if (Math.random() > 0.6) {
+      piece.style.borderRadius = '50%';
+      piece.style.width = '8px';
+      piece.style.height = '8px';
+    } else if (Math.random() > 0.5) {
+      piece.style.width = '6px';
+      piece.style.height = '12px';
+    }
+
+    container.appendChild(piece);
+  }
+
+  // Cleanup after animation done
+  setTimeout(() => { container.innerHTML = ''; }, 4500);
 }
 
 // --- Page Navigation ---
