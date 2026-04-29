@@ -1,18 +1,11 @@
 // NovaCart CI/CD Pipeline
-// GitHub -> Poll every 1 min -> Validate -> Deploy -> Verify
-// Each stage does ONE thing. Console output kept short.
+// GitHub -> Jenkins polls every 1 min -> Validate -> Deploy -> Verify
 
 pipeline {
     agent any
 
     triggers {
-        pollSCM('* * * * *')   // Check GitHub every 1 minute
-    }
-
-    options {
-        timestamps()
-        disableConcurrentBuilds()
-        buildDiscarder(logRotator(numToKeepStr: '10'))
+        pollSCM('* * * * *')
     }
 
     environment {
@@ -34,7 +27,7 @@ pipeline {
         stage('Validate') {
             steps {
                 echo 'Checking JS syntax...'
-                bat(script: 'node --check app.js', returnStatus: false)
+                bat 'node --check app.js'
                 echo 'JS syntax OK.'
             }
         }
@@ -42,7 +35,7 @@ pipeline {
         stage('CouchDB Check') {
             steps {
                 echo 'Pinging CouchDB...'
-                bat(script: "curl -sf -o nul -u admin:admin ${COUCH_URL}", returnStatus: false)
+                bat "curl -sf -o nul -u admin:admin ${COUCH_URL}"
                 echo 'CouchDB is reachable.'
             }
         }
@@ -50,9 +43,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Copying files to NGD application server...'
-                bat(script: "copy /Y \"${WORKSPACE}\\index.html\" \"${DEPLOY_DIR}\\index.html\" > nul", returnStatus: false)
-                bat(script: "copy /Y \"${WORKSPACE}\\app.js\"      \"${DEPLOY_DIR}\\app.js\"      > nul", returnStatus: false)
-                bat(script: "copy /Y \"${WORKSPACE}\\styles.css\"  \"${DEPLOY_DIR}\\styles.css\"  > nul", returnStatus: false)
+                bat "copy /Y \"%WORKSPACE%\\index.html\" \"${DEPLOY_DIR}\\index.html\" > nul"
+                bat "copy /Y \"%WORKSPACE%\\app.js\" \"${DEPLOY_DIR}\\app.js\" > nul"
+                bat "copy /Y \"%WORKSPACE%\\styles.css\" \"${DEPLOY_DIR}\\styles.css\" > nul"
                 echo '3 files deployed.'
             }
         }
@@ -60,7 +53,7 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 echo 'Verifying site is live...'
-                bat(script: "curl -sf -o nul http://localhost:${APP_PORT}", returnStatus: false)
+                bat "curl -sf -o nul http://localhost:${APP_PORT}"
                 echo "Site is live on http://localhost:${APP_PORT}"
             }
         }
