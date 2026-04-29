@@ -1668,37 +1668,39 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 
 .ck-card-contactless svg { width: 100%; height: 100%; }
 
-/* Brand logo - sits in top-right of card */
+/* Brand logo - sits in top-right of card with safe padding so nothing clips */
 .ck-card-brand {
   position: absolute;
-  top: 22px;
-  right: 24px;
+  top: 18px;
+  right: 22px;
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 38px;
-  min-width: 60px;
+  min-height: 36px;
+  /* No fixed width/height — each brand sizes naturally without clipping descenders or italic slant */
 }
 
 /* ===== Brand logos (drawn with CSS to match real card placement) ===== */
 
-/* Visa: clean italic wordmark, white. Real Visa cards have just "VISA" italic. */
+/* Visa: clean italic wordmark, white */
 .ck-card[data-brand="visa"] .ck-card-brand::before {
   content: 'VISA';
   font-family: 'Arial', 'Helvetica', sans-serif;
   font-style: italic;
   font-weight: 900;
-  font-size: 30px;
+  font-size: 28px;
   letter-spacing: -0.5px;
   color: #fff;
   line-height: 1;
+  padding: 2px 4px 2px 0;  /* room for italic slant */
 }
 
-/* Mastercard: two overlapping circles only, no text. Larger and properly sized. */
+/* Mastercard: two overlapping circles only */
 .ck-card[data-brand="mastercard"] .ck-card-brand {
   width: 56px;
   height: 36px;
+  position: absolute;
 }
 
 .ck-card[data-brand="mastercard"] .ck-card-brand::before,
@@ -1738,10 +1740,11 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   white-space: nowrap;
 }
 
-/* Maestro: two interlocking circles (blue + red), no text */
+/* Maestro: two interlocking circles (blue + red) */
 .ck-card[data-brand="maestro"] .ck-card-brand {
   width: 56px;
   height: 36px;
+  position: absolute;
 }
 
 .ck-card[data-brand="maestro"] .ck-card-brand::before,
@@ -1765,15 +1768,16 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   mix-blend-mode: hard-light;
 }
 
-/* RuPay: tricolor wordmark only (saffron / white / green - Indian flag) */
+/* RuPay: tricolor wordmark (saffron / white / green - Indian flag colors) */
 .ck-card[data-brand="rupay"] .ck-card-brand::before {
   content: 'RuPay';
   font-family: 'Arial', sans-serif;
   font-style: italic;
   font-weight: 900;
-  font-size: 26px;
-  letter-spacing: -1px;
-  line-height: 1;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  padding: 2px 4px 4px 0;  /* extra room for italic slant + descender */
   background: linear-gradient(90deg, #ff9933 0%, #ff9933 36%, #fff 36%, #fff 64%, #138808 64%, #138808 100%);
   -webkit-background-clip: text;
   background-clip: text;
