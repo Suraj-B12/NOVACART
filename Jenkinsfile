@@ -1,8 +1,10 @@
 // NovaCart CI/CD Pipeline
 // GitHub -> Jenkins polls every 1 min -> Validate -> Deploy -> Verify
 
+// Poll GitHub once per minute. The deploy.bat helper also force-triggers builds,
+// so a missed poll cycle never delays a deploy beyond 60 seconds.
 properties([
-    pipelineTriggers([pollSCM('* * * * *')])
+    pipelineTriggers([pollSCM('H/1 * * * *')])
 ])
 
 node {

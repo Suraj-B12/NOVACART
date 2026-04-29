@@ -713,9 +713,10 @@ function onCardNumberInput(input) {
   const card = document.getElementById('ck-card-preview');
   card.dataset.brand = brand;
 
-  // Brand label inside the card
+  // Brand label inside the card — CSS handles the logo via [data-brand] on the card.
+  // We only need to clear any prior textContent, the ::before pseudo-element renders the mark.
   const brandEl = document.getElementById('ck-card-brand');
-  brandEl.textContent = brand ? brand.toUpperCase() : '';
+  brandEl.textContent = '';
 
   // Brand icon next to input field
   const iconEl = document.getElementById('ck-card-brand-icon');

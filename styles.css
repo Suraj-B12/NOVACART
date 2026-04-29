@@ -1681,120 +1681,108 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   min-width: 60px;
 }
 
-/* Visa: bold italic wordmark, gold underline shadow */
+/* ===== Brand logos (drawn with CSS to match real card placement) ===== */
+
+/* Visa: clean italic wordmark, white. Real Visa cards have just "VISA" italic. */
 .ck-card[data-brand="visa"] .ck-card-brand::before {
   content: 'VISA';
-  font-family: 'Arial Black', 'Helvetica', sans-serif;
+  font-family: 'Arial', 'Helvetica', sans-serif;
   font-style: italic;
   font-weight: 900;
-  font-size: 32px;
-  letter-spacing: -1px;
+  font-size: 30px;
+  letter-spacing: -0.5px;
   color: #fff;
-  text-shadow: 0 2px 0 #f7b600, 0 4px 6px rgba(0,0,0,0.3);
   line-height: 1;
 }
 
-/* Mastercard: two overlapping circles, larger */
+/* Mastercard: two overlapping circles only, no text. Larger and properly sized. */
 .ck-card[data-brand="mastercard"] .ck-card-brand {
-  flex-direction: column;
-  gap: 2px;
+  width: 56px;
+  height: 36px;
+  position: relative;
+}
+
+.ck-card[data-brand="mastercard"] .ck-card-brand::before,
+.ck-card[data-brand="mastercard"] .ck-card-brand::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
 }
 
 .ck-card[data-brand="mastercard"] .ck-card-brand::before {
-  content: '';
-  display: block;
-  width: 56px;
-  height: 36px;
-  background:
-    radial-gradient(circle at 18px 18px, #eb001b 18px, transparent 18.5px),
-    radial-gradient(circle at 38px 18px, #f79e1b 18px, transparent 18.5px);
+  background: #eb001b;
+  left: 0;
 }
 
 .ck-card[data-brand="mastercard"] .ck-card-brand::after {
-  content: 'mastercard';
-  font-family: 'Helvetica Neue', Helvetica, sans-serif;
-  font-weight: 700;
-  font-size: 8px;
-  letter-spacing: 0.4px;
-  color: #fff;
-  text-transform: lowercase;
-  line-height: 1;
+  background: #f79e1b;
+  right: 0;
+  mix-blend-mode: hard-light;
 }
 
-/* Amex: bordered block with text */
+/* Amex: classic boxed AMERICAN EXPRESS, tight and centered */
 .ck-card[data-brand="amex"] .ck-card-brand::before {
   content: 'AMERICAN EXPRESS';
   font-family: 'Arial Black', sans-serif;
   font-weight: 900;
-  font-size: 9px;
-  letter-spacing: 0.4px;
+  font-size: 8px;
+  letter-spacing: 0.5px;
   color: #fff;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.7);
-  padding: 7px 11px;
+  background: transparent;
+  border: 1.5px solid #fff;
+  padding: 6px 10px;
   display: inline-block;
   line-height: 1;
+  white-space: nowrap;
 }
 
-/* Maestro: blue+red overlapping circles */
+/* Maestro: two interlocking circles (blue + red), no text */
 .ck-card[data-brand="maestro"] .ck-card-brand {
-  flex-direction: column;
-  gap: 2px;
+  width: 56px;
+  height: 36px;
+  position: relative;
+}
+
+.ck-card[data-brand="maestro"] .ck-card-brand::before,
+.ck-card[data-brand="maestro"] .ck-card-brand::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
 }
 
 .ck-card[data-brand="maestro"] .ck-card-brand::before {
-  content: '';
-  display: block;
-  width: 56px;
-  height: 36px;
-  background:
-    radial-gradient(circle at 18px 18px, #0079be 18px, transparent 18.5px),
-    radial-gradient(circle at 38px 18px, #ed0006 18px, transparent 18.5px);
+  background: #0079be;
+  left: 0;
 }
 
 .ck-card[data-brand="maestro"] .ck-card-brand::after {
-  content: 'maestro';
-  font-family: 'Helvetica Neue', Helvetica, sans-serif;
-  font-weight: 700;
-  font-style: italic;
-  font-size: 8px;
-  color: #fff;
-  text-transform: lowercase;
-  letter-spacing: 0.4px;
-  line-height: 1;
+  background: #ed0006;
+  right: 0;
+  mix-blend-mode: hard-light;
 }
 
-/* RuPay: orange + green tricolor wordmark */
-.ck-card[data-brand="rupay"] .ck-card-brand {
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-}
-
+/* RuPay: tricolor wordmark only (saffron / white / green - Indian flag) */
 .ck-card[data-brand="rupay"] .ck-card-brand::before {
   content: 'RuPay';
-  font-family: 'Arial Black', sans-serif;
+  font-family: 'Arial', sans-serif;
+  font-style: italic;
   font-weight: 900;
-  font-size: 22px;
-  letter-spacing: -0.8px;
+  font-size: 26px;
+  letter-spacing: -1px;
   line-height: 1;
-  background: linear-gradient(90deg, #f2a900 0%, #f2a900 38%, #fff 38%, #fff 62%, #097969 62%, #097969 100%);
+  background: linear-gradient(90deg, #ff9933 0%, #ff9933 36%, #fff 36%, #fff 64%, #138808 64%, #138808 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-.ck-card[data-brand="rupay"] .ck-card-brand::after {
-  content: 'INDIA';
-  font-family: 'Helvetica Neue', sans-serif;
-  font-weight: 700;
-  font-size: 7px;
-  letter-spacing: 2px;
-  color: rgba(255,255,255,0.7);
-  line-height: 1;
-}
-
-/* Discover */
+/* Discover: orange wordmark */
 .ck-card[data-brand="discover"] .ck-card-brand::before {
   content: 'DISCOVER';
   font-family: 'Arial Black', sans-serif;
