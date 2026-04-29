@@ -1528,10 +1528,10 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 
 @keyframes ckSpin { to { transform: rotate(360deg); } }
 
-/* 3D card preview */
+/* ========== 3D card preview (brand-accurate) ========== */
 
 .ck-card-wrap {
-  perspective: 1000px;
+  perspective: 1200px;
   margin: 0 auto 20px;
   width: 100%;
   max-width: 360px;
@@ -1554,51 +1554,70 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  padding: 20px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(135deg, #2D3347 0%, #4a5378 50%, #2D3347 100%);
+  background: linear-gradient(135deg, #1c2034 0%, #353b55 50%, #1c2034 100%);
   color: #fff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  transition: background 0.5s ease;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+  transition: background 0.6s ease;
   overflow: hidden;
 }
 
 .ck-card-front { transform: rotateY(0deg); }
 .ck-card-back  { transform: rotateY(180deg); }
 
+/* Brand-accurate gradients */
 .ck-card[data-brand="visa"] .ck-card-front,
 .ck-card[data-brand="visa"] .ck-card-back {
-  background: linear-gradient(135deg, #1a1f71 0%, #2d54c8 50%, #1a1f71 100%);
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
+    linear-gradient(135deg, #0d0f4a 0%, #1a1f71 50%, #0a0d3d 100%);
 }
 
 .ck-card[data-brand="mastercard"] .ck-card-front,
 .ck-card[data-brand="mastercard"] .ck-card-back {
-  background: linear-gradient(135deg, #1c1c1c 0%, #eb001b 50%, #f79e1b 100%);
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.06) 0%, transparent 40%),
+    linear-gradient(135deg, #0a0a0a 0%, #1f1f1f 50%, #0a0a0a 100%);
 }
 
 .ck-card[data-brand="amex"] .ck-card-front,
 .ck-card[data-brand="amex"] .ck-card-back {
-  background: linear-gradient(135deg, #006fcf 0%, #00a3e0 50%, #006fcf 100%);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12) 0%, transparent 50%),
+    linear-gradient(135deg, #006fcf 0%, #018ee8 40%, #006fcf 100%);
+}
+
+.ck-card[data-brand="maestro"] .ck-card-front,
+.ck-card[data-brand="maestro"] .ck-card-back {
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.06) 0%, transparent 40%),
+    linear-gradient(135deg, #003473 0%, #0079be 50%, #002550 100%);
 }
 
 .ck-card[data-brand="rupay"] .ck-card-front,
 .ck-card[data-brand="rupay"] .ck-card-back {
-  background: linear-gradient(135deg, #097969 0%, #f2a900 50%, #097969 100%);
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
+    linear-gradient(135deg, #1a3a52 0%, #244c6c 50%, #0e2638 100%);
 }
 
 .ck-card[data-brand="discover"] .ck-card-front,
 .ck-card[data-brand="discover"] .ck-card-back {
-  background: linear-gradient(135deg, #ff6000 0%, #f57b00 50%, #ff6000 100%);
+  background: linear-gradient(135deg, #ff6000 0%, #f57b00 50%, #cc4f00 100%);
 }
 
+/* Subtle moving shine */
 .ck-card-shine {
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
-  animation: ckShine 3.5s ease-in-out infinite;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.12) 50%, transparent 70%);
+  animation: ckShine 5s ease-in-out infinite;
   pointer-events: none;
+  z-index: 1;
 }
 
 @keyframes ckShine {
@@ -1606,59 +1625,235 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   50%      { transform: translateX(100%); }
 }
 
+/* Holographic foil sticker (top-right corner) */
+.ck-card-foil {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: conic-gradient(
+    from 0deg,
+    #ff00ea, #00d4ff, #00ff88, #ffd700, #ff6b00, #ff00ea
+  );
+  background-size: 200% 200%;
+  animation: ckFoil 4s linear infinite;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+  filter: blur(0.3px);
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
+}
+
+@keyframes ckFoil {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .ck-card-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  position: relative;
+  z-index: 3;
 }
 
+/* Realistic chip with grid pattern */
 .ck-card-chip {
-  width: 42px;
-  height: 32px;
-  background: linear-gradient(135deg, #d4af37 0%, #f7e7a3 50%, #b8941f 100%);
+  width: 44px;
+  height: 34px;
+  background: linear-gradient(135deg, #d4af37 0%, #f8e9a8 30%, #c19a2a 70%, #d4af37 100%);
+  border-radius: 5px;
+  padding: 4px;
+  position: relative;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.ck-chip-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 1px;
+}
+
+.ck-chip-grid > div {
+  background: rgba(0,0,0,0.18);
+}
+
+.ck-chip-grid > div:nth-child(5) {
+  background: rgba(0,0,0,0.32);
+}
+
+/* Contactless icon */
+.ck-card-contactless {
+  width: 26px;
+  height: 26px;
+  color: rgba(255,255,255,0.85);
+  opacity: 0.8;
+  margin-right: 50px;
+}
+
+.ck-card-contactless svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Brand logos (drawn with CSS / inline content per brand) */
+.ck-card-brand {
+  position: absolute;
+  bottom: 22px;
+  right: 24px;
+  z-index: 3;
+}
+
+/* Visa: italic wordmark */
+.ck-card[data-brand="visa"] .ck-card-brand::before {
+  content: 'VISA';
+  font-family: 'Arial Black', 'Helvetica', sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  color: #fff;
+  text-shadow: 1px 1px 0 #f7b600;
+}
+
+/* Mastercard: two overlapping circles + lowercase wordmark */
+.ck-card[data-brand="mastercard"] .ck-card-brand {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 3px;
-  padding: 4px 6px;
-  position: relative;
+  align-items: flex-end;
+  gap: 2px;
 }
 
-.ck-chip-line { height: 2px; background: rgba(0,0,0,0.2); }
+.ck-card[data-brand="mastercard"] .ck-card-brand::before {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 32px;
+  background:
+    radial-gradient(circle at 16px 16px, #eb001b 16px, transparent 16px),
+    radial-gradient(circle at 40px 16px, #f79e1b 16px, transparent 16px);
+}
 
-.ck-card-brand {
-  font-family: var(--font-heading);
-  font-size: 22px;
+.ck-card[data-brand="mastercard"] .ck-card-brand::after {
+  content: 'mastercard';
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
   font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-style: italic;
-  min-height: 28px;
+  font-size: 9px;
+  letter-spacing: 0.3px;
+  color: #fff;
+  text-transform: lowercase;
 }
 
+/* Amex: classic blue block with white text */
+.ck-card[data-brand="amex"] .ck-card-brand::before {
+  content: 'AMERICAN EXPRESS';
+  font-family: 'Arial Black', sans-serif;
+  font-weight: 900;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  padding: 6px 10px;
+  display: inline-block;
+}
+
+/* Maestro: blue + red overlapping circles */
+.ck-card[data-brand="maestro"] .ck-card-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.ck-card[data-brand="maestro"] .ck-card-brand::before {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 32px;
+  background:
+    radial-gradient(circle at 16px 16px, #0079be 16px, transparent 16px),
+    radial-gradient(circle at 40px 16px, #ed0006 16px, transparent 16px);
+}
+
+.ck-card[data-brand="maestro"] .ck-card-brand::after {
+  content: 'maestro';
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 9px;
+  color: #fff;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+}
+
+/* RuPay: tricolor wordmark */
+.ck-card[data-brand="rupay"] .ck-card-brand::before {
+  content: 'RuPay';
+  font-family: 'Arial Black', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #f2a900 0%, #f2a900 35%, #fff 35%, #fff 60%, #097969 60%, #097969 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+}
+
+/* Discover */
+.ck-card[data-brand="discover"] .ck-card-brand::before {
+  content: 'DISCOVER';
+  font-family: 'Arial Black', sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
+/* Card number - embossed look */
 .ck-card-number {
   font-family: 'Courier New', monospace;
   font-size: 22px;
-  letter-spacing: 3px;
-  font-weight: 500;
-  text-align: center;
-  margin: 8px 0;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  letter-spacing: 2.5px;
+  font-weight: 700;
+  text-align: left;
+  margin: 0;
+  padding: 0 0 0 0;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.15),
+    0 -1px 0 rgba(0,0,0,0.4),
+    0 3px 8px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 3;
 }
 
 .ck-card-bottom {
   display: flex;
-  justify-content: space-between;
   align-items: flex-end;
   gap: 14px;
+  padding-right: 70px;
+  position: relative;
+  z-index: 3;
+}
+
+.ck-card-info-right {
+  margin-left: auto;
 }
 
 .ck-card-info-label {
-  font-size: 9px;
+  font-size: 8px;
   text-transform: uppercase;
-  letter-spacing: 1.2px;
-  opacity: 0.7;
-  margin-bottom: 4px;
+  letter-spacing: 1.4px;
+  opacity: 0.65;
+  margin-bottom: 3px;
+  font-weight: 600;
 }
 
 .ck-card-info-value {
@@ -1666,33 +1861,80 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   font-size: 13px;
   letter-spacing: 1px;
   text-transform: uppercase;
+  font-weight: 600;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.3);
 }
 
+/* Card back */
 .ck-card-magstripe {
   position: absolute;
-  top: 24px;
+  top: 22px;
   left: 0;
   right: 0;
-  height: 40px;
-  background: #1a1a1a;
+  height: 42px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #050505 100%);
+}
+
+.ck-card-signature {
+  position: absolute;
+  top: 90px;
+  left: 18px;
+  right: 18px;
+  display: flex;
+  align-items: stretch;
+  height: 38px;
+  gap: 8px;
+}
+
+.ck-sig-strip {
+  flex: 1;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #f5f5f5 0px,
+      #f5f5f5 4px,
+      #e0e0e0 4px,
+      #e0e0e0 8px
+    );
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 .ck-card-cvv-box {
-  margin-top: 64px;
-  background: rgba(255,255,255,0.9);
+  flex: 0 0 70px;
+  background: #f5f5f5;
   color: #000;
-  padding: 8px 12px;
-  text-align: right;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   font-family: 'Courier New', monospace;
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 .ck-card-cvv {
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 2px;
   font-weight: 700;
 }
 
-.ck-card-back .ck-card-info-label { color: #000; opacity: 0.6; }
+.ck-card-fineprint {
+  position: absolute;
+  bottom: 36px;
+  left: 18px;
+  right: 18px;
+  font-size: 7px;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+
+.ck-card-brand-back {
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  opacity: 0.7;
+}
 
 .ck-card-brand-icon {
   position: absolute;
@@ -2000,99 +2242,220 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   animation: ckShake 0.4s;
 }
 
-/* Success */
+/* ========== Success: flying card + thermal receipt ========== */
 
 .ck-step-success {
   text-align: center;
-  padding: 30px 0;
+  padding: 0;
   position: relative;
   align-items: center;
+  min-height: 480px;
+  overflow: hidden;
 }
 
-.ck-success-content {
+/* Card flies up and off */
+.ck-flying-card {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
+  width: 320px;
+  height: 200px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.ck-flying-card.fly {
+  animation: ckCardFly 1.2s cubic-bezier(0.5, -0.4, 0.7, 1) forwards;
+}
+
+@keyframes ckCardFly {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px) rotate(-2deg) scale(1.03);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-300px) rotate(-18deg) scale(0.6);
+  }
+}
+
+/* Thermal receipt */
+.ck-receipt {
   position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.ck-success-check {
-  width: 96px;
-  height: 96px;
-  margin-bottom: 12px;
-}
-
-.ck-success-circle {
-  fill: none;
-  stroke: #4CAF50;
-  stroke-width: 4;
-  stroke-dasharray: 226;
-  stroke-dashoffset: 226;
-  animation: ckCircleDraw 0.6s ease-out 0.1s forwards;
-}
-
-.ck-success-path {
-  fill: none;
-  stroke: #4CAF50;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 60;
-  stroke-dashoffset: 60;
-  animation: ckCheckDraw 0.4s ease-out 0.7s forwards;
-}
-
-@keyframes ckCircleDraw { to { stroke-dashoffset: 0; } }
-@keyframes ckCheckDraw  { to { stroke-dashoffset: 0; } }
-
-.ck-success-title {
-  font-family: var(--font-heading);
-  font-size: 28px;
-  color: var(--brand);
-  margin: 0;
-  opacity: 0;
-  animation: ckFadeUp 0.5s ease-out 1.0s forwards;
-}
-
-.ck-success-message {
-  color: var(--text-light);
-  margin: 0;
-  opacity: 0;
-  animation: ckFadeUp 0.5s ease-out 1.2s forwards;
-}
-
-.ck-success-orderid {
+  width: 320px;
+  margin: 0 auto;
+  background:
+    linear-gradient(180deg, #fafafa 0%, #f5f5f0 100%);
   font-family: 'Courier New', monospace;
-  background: var(--bg-light);
-  padding: 8px 16px;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--brand);
-  border: 1px dashed var(--border);
-  letter-spacing: 1px;
+  color: #1a1a1a;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+  transform: translateY(-200%);
   opacity: 0;
-  animation: ckFadeUp 0.5s ease-out 1.4s forwards;
+  z-index: 4;
 }
 
-.ck-success-eta {
-  color: var(--text-light);
-  font-size: 13px;
-  margin: 4px 0;
+.ck-receipt.show {
+  animation: ckReceiptDrop 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) 1.0s forwards;
+}
+
+@keyframes ckReceiptDrop {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  60%  { transform: translateY(8px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Perforated tear edges */
+.ck-receipt-tear {
+  height: 12px;
+  background:
+    radial-gradient(circle at 6px 100%, transparent 6px, #fafafa 6.5px) repeat-x;
+  background-size: 12px 12px;
+}
+
+.ck-receipt-tear-top {
+  background:
+    radial-gradient(circle at 6px 0%, transparent 6px, #fafafa 6.5px) repeat-x;
+  background-size: 12px 12px;
+}
+
+.ck-receipt-tear-bottom {
+  background:
+    radial-gradient(circle at 6px 100%, transparent 6px, #fafafa 6.5px) repeat-x;
+  background-size: 12px 12px;
+}
+
+.ck-receipt-content {
+  padding: 18px 22px 24px;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.ck-receipt-line {
   opacity: 0;
-  animation: ckFadeUp 0.5s ease-out 1.6s forwards;
+  transform: translateY(-4px);
+}
+
+.ck-receipt-line.in {
+  animation: ckLineIn 0.25s ease-out forwards;
+}
+
+@keyframes ckLineIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ck-receipt-header {
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  margin-bottom: 4px;
+  color: #000;
+}
+
+.ck-receipt-subheader {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.ck-receipt-divider {
+  border-top: 1px dashed #888;
+  margin: 8px 0;
+}
+
+.ck-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.ck-receipt-row span:last-child {
+  font-weight: 700;
+}
+
+.ck-receipt-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  gap: 8px;
+}
+
+.ck-receipt-item-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ck-receipt-item-price {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ck-receipt-total {
+  font-size: 14px;
+  font-weight: 900;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.ck-receipt-total span:last-child {
+  font-size: 16px;
+}
+
+.ck-receipt-thank {
+  text-align: center;
+  font-size: 11px;
+  margin-top: 14px;
+  letter-spacing: 0.5px;
+  color: #555;
+}
+
+.ck-receipt-orderid {
+  text-align: center;
+  font-size: 10px;
+  margin-top: 6px;
+  letter-spacing: 1.5px;
+  color: #1a1a1a;
+}
+
+.ck-receipt-barcode {
+  height: 28px;
+  margin-top: 10px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #000 0 1px, #fff 1px 3px,
+      #000 3px 5px, #fff 5px 6px,
+      #000 6px 7px, #fff 7px 11px,
+      #000 11px 13px, #fff 13px 14px
+    );
 }
 
 .ck-success-btn {
-  margin-top: 16px;
+  position: relative;
+  z-index: 5;
+  margin: 24px auto 16px;
   padding: 14px 36px;
   opacity: 0;
-  animation: ckFadeUp 0.5s ease-out 1.8s forwards;
 }
 
-@keyframes ckFadeUp {
+.ck-success-btn.show {
+  animation: ckBtnIn 0.5s ease-out forwards;
+}
+
+@keyframes ckBtnIn {
   from { opacity: 0; transform: translateY(15px); }
   to   { opacity: 1; transform: translateY(0); }
 }

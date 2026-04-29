@@ -619,13 +619,22 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
               <div class="ck-card" id="ck-card-preview">
                 <div class="ck-card-front">
                   <div class="ck-card-shine"></div>
+                  <div class="ck-card-foil"></div>
                   <div class="ck-card-top">
                     <div class="ck-card-chip">
-                      <div class="ck-chip-line"></div>
-                      <div class="ck-chip-line"></div>
-                      <div class="ck-chip-line"></div>
+                      <div class="ck-chip-grid">
+                        <div></div><div></div><div></div>
+                        <div></div><div></div><div></div>
+                        <div></div><div></div><div></div>
+                      </div>
                     </div>
-                    <div class="ck-card-brand" id="ck-card-brand"></div>
+                    <div class="ck-card-contactless" aria-label="Contactless">
+                      <svg viewBox="0 0 32 32" fill="none">
+                        <path d="M11 8 C 14 12, 14 20, 11 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M16 6 C 20 11, 20 21, 16 26" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M21 4 C 26 10, 26 22, 21 28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                    </div>
                   </div>
                   <div class="ck-card-number" id="ck-card-display">•••• •••• •••• ••••</div>
                   <div class="ck-card-bottom">
@@ -633,18 +642,23 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
                       <div class="ck-card-info-label">Card Holder</div>
                       <div class="ck-card-info-value" id="ck-name-display">YOUR NAME</div>
                     </div>
-                    <div class="ck-card-info">
+                    <div class="ck-card-info ck-card-info-right">
                       <div class="ck-card-info-label">Expires</div>
                       <div class="ck-card-info-value" id="ck-expiry-display">MM/YY</div>
                     </div>
+                    <div class="ck-card-brand" id="ck-card-brand"></div>
                   </div>
                 </div>
                 <div class="ck-card-back">
                   <div class="ck-card-magstripe"></div>
-                  <div class="ck-card-cvv-box">
-                    <div class="ck-card-info-label">CVV</div>
-                    <div class="ck-card-cvv" id="ck-cvv-display">•••</div>
+                  <div class="ck-card-signature">
+                    <div class="ck-sig-strip"></div>
+                    <div class="ck-card-cvv-box">
+                      <div class="ck-card-cvv" id="ck-cvv-display">•••</div>
+                    </div>
                   </div>
+                  <div class="ck-card-fineprint">This card is property of NovaCart Bank. Misuse is prohibited. Demo use only.</div>
+                  <div class="ck-card-brand-back" id="ck-card-brand-back"></div>
                 </div>
               </div>
             </div>
@@ -733,19 +747,20 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
           <!-- STEP 4: SUCCESS -->
           <div class="ck-step ck-step-success" id="ck-step-success">
             <div class="ck-confetti-container" id="ck-confetti"></div>
-            <div class="ck-success-content">
-              <svg class="ck-success-check" viewBox="0 0 80 80">
-                <circle class="ck-success-circle" cx="40" cy="40" r="36"/>
-                <path class="ck-success-path" d="M22 42 L36 56 L60 30"/>
-              </svg>
-              <h2 class="ck-success-title">Order Placed!</h2>
-              <p class="ck-success-message" id="ck-success-message">Thank you for shopping with us.</p>
-              <div class="ck-success-orderid" id="ck-success-orderid"></div>
-              <p class="ck-success-eta">Estimated delivery: <strong>3-5 business days</strong></p>
-              <button class="btn-primary ck-success-btn" onclick="closeCheckout(); showHome();">
-                Continue Shopping
-              </button>
+
+            <!-- Card that flies off after payment -->
+            <div class="ck-flying-card" id="ck-flying-card"></div>
+
+            <!-- Animated thermal receipt -->
+            <div class="ck-receipt" id="ck-receipt">
+              <div class="ck-receipt-tear ck-receipt-tear-top"></div>
+              <div class="ck-receipt-content" id="ck-receipt-content"></div>
+              <div class="ck-receipt-tear ck-receipt-tear-bottom"></div>
             </div>
+
+            <button class="btn-primary ck-success-btn" id="ck-success-btn" onclick="closeCheckout(); showHome();">
+              Continue Shopping
+            </button>
           </div>
 
         </div>

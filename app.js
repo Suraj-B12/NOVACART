@@ -510,6 +510,16 @@ function openCheckout() {
   document.getElementById('checkout-status').textContent = '';
   document.getElementById('checkout-status').className = 'checkout-status';
 
+  // Reset success state
+  const flyEl = document.getElementById('ck-flying-card');
+  if (flyEl) { flyEl.className = 'ck-flying-card'; flyEl.innerHTML = ''; flyEl.style.opacity = '0'; }
+  const receipt = document.getElementById('ck-receipt');
+  if (receipt) receipt.classList.remove('show');
+  const successBtn = document.getElementById('ck-success-btn');
+  if (successBtn) successBtn.classList.remove('show');
+  const submitBtn = document.getElementById('checkout-submit');
+  if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); }
+
   document.getElementById('checkout-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -886,19 +896,184 @@ async function submitOrder(event) {
     localStorage.setItem('novacart_cart', JSON.stringify(cart));
     updateCartCount();
 
-    // Show success step + confetti
-    document.getElementById('ck-success-message').textContent =
-      `Thank you, ${order.user_name.split(' ')[0]}. We've sent a confirmation to ${order.user_email}.`;
-    document.getElementById('ck-success-orderid').textContent = order._id;
-
+    // Trigger the cinematic success sequence
     showCheckoutStep('success');
-    launchConfetti();
+    runSuccessSequence(order);
   } catch (err) {
     statusEl.textContent = 'Could not place order: ' + err.message;
     statusEl.className = 'checkout-status error';
     submitBtn.disabled = false;
     submitBtn.classList.remove('loading');
   }
+}
+
+// --- Cinematic success sound (Web Audio API) ---
+
+function playSuccessSound() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    master.gain.value = 0.35;
+    master.connect(ctx.destination);
+
+    // 1) Whoosh: filtered white noise sweeping up
+    const noiseDur = 0.55;
+    const buf = ctx.createBuffer(1, ctx.sampleRate * noiseDur, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.Q.value = 1.5;
+    noiseFilter.frequency.setValueAtTime(180, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(5500, now + noiseDur);
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.0001, now);
+    noiseGain.gain.linearRampToValueAtTime(0.4, now + 0.05);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + noiseDur);
+
+    noise.connect(noiseFilter).connect(noiseGain).connect(master);
+    noise.start(now);
+    noise.stop(now + noiseDur);
+
+    // 2) Bell chime: layered sine waves with overtones for richness
+    const chimeStart = now + 0.45;
+    const fundamentals = [
+      { f: 587.33, gain: 0.5,  decay: 2.2 },   // D5
+      { f: 880.00, gain: 0.4,  decay: 2.0 },   // A5
+      { f: 1174.66, gain: 0.3, decay: 1.6 },   // D6
+      { f: 1760.00, gain: 0.15, decay: 1.0 }   // A6 sparkle
+    ];
+
+    fundamentals.forEach((tone, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = tone.f;
+
+      const g = ctx.createGain();
+      const start = chimeStart + i * 0.015;
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(tone.gain, start + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + tone.decay);
+
+      // Slight frequency wobble for warmth
+      osc.detune.setValueAtTime(0, start);
+      osc.detune.linearRampToValueAtTime(-3, start + tone.decay);
+
+      osc.connect(g).connect(master);
+      osc.start(start);
+      osc.stop(start + tone.decay + 0.05);
+    });
+
+    // 3) Sub-bass thump for that cinematic body
+    const sub = ctx.createOscillator();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(120, chimeStart);
+    sub.frequency.exponentialRampToValueAtTime(50, chimeStart + 0.25);
+
+    const subGain = ctx.createGain();
+    subGain.gain.setValueAtTime(0, chimeStart);
+    subGain.gain.linearRampToValueAtTime(0.4, chimeStart + 0.02);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, chimeStart + 0.4);
+
+    sub.connect(subGain).connect(master);
+    sub.start(chimeStart);
+    sub.stop(chimeStart + 0.5);
+
+    // Cleanup context after sound finishes
+    setTimeout(() => { try { ctx.close(); } catch (e) {} }, 3000);
+  } catch (e) {
+    // silently fail if audio unavailable
+  }
+}
+
+// --- Success sequence: card fly-off + receipt print + confetti + sound ---
+
+function runSuccessSequence(order) {
+  // Build a cloned card for the fly-off animation
+  const flyEl = document.getElementById('ck-flying-card');
+  const sourceCard = document.getElementById('ck-card-preview');
+  if (flyEl && sourceCard) {
+    flyEl.innerHTML = sourceCard.querySelector('.ck-card-front').outerHTML;
+    flyEl.dataset.brand = sourceCard.dataset.brand || '';
+    // Apply the brand class on the wrapper so gradients work
+    flyEl.className = 'ck-flying-card ck-card';
+    flyEl.dataset.brand = sourceCard.dataset.brand || '';
+
+    // Trigger fly animation after a brief moment
+    requestAnimationFrame(() => {
+      flyEl.style.opacity = '1';
+      flyEl.classList.add('fly');
+    });
+  }
+
+  // Play the cinematic sound
+  playSuccessSound();
+
+  // Print the receipt
+  printReceipt(order);
+
+  // Confetti during the receipt printing
+  setTimeout(() => launchConfetti(), 1100);
+
+  // Reveal continue button after everything settles
+  setTimeout(() => {
+    const btn = document.getElementById('ck-success-btn');
+    if (btn) btn.classList.add('show');
+  }, 3500);
+}
+
+function printReceipt(order) {
+  const container = document.getElementById('ck-receipt');
+  const content = document.getElementById('ck-receipt-content');
+  if (!container || !content) return;
+
+  const dt = new Date(order.ordered_at);
+  const dateStr = dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = dt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  const lines = [];
+  lines.push(`<div class="ck-receipt-line ck-receipt-header">NOVACART</div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-subheader">SHOP / BUY / REPEAT</div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-divider"></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-row"><span>Date</span><span>${dateStr}</span></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-row"><span>Time</span><span>${timeStr} IST</span></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-row"><span>Customer</span><span>${escapeHtml(order.user_name)}</span></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-divider"></div>`);
+
+  order.items.forEach(item => {
+    const name = item.name.length > 22 ? item.name.slice(0, 19) + '...' : item.name;
+    lines.push(`<div class="ck-receipt-line ck-receipt-item">
+      <span class="ck-receipt-item-name">${escapeHtml(name)} × ${item.quantity}</span>
+      <span class="ck-receipt-item-price">₹${formatINR(item.price * item.quantity)}</span>
+    </div>`);
+  });
+
+  lines.push(`<div class="ck-receipt-line ck-receipt-divider"></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-row"><span>Subtotal</span><span>₹${formatINR(order.subtotal)}</span></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-row"><span>Shipping</span><span>${order.shipping_cost === 0 ? 'FREE' : '₹' + formatINR(order.shipping_cost)}</span></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-divider"></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-total"><span>TOTAL</span><span>₹${formatINR(order.total)}</span></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-divider"></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-row"><span>Paid via</span><span>${order.payment_method} •• ${order.card_last4 || ''}</span></div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-thank">~ Thank you for shopping ~</div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-orderid">${escapeHtml(order._id)}</div>`);
+  lines.push(`<div class="ck-receipt-line ck-receipt-barcode"></div>`);
+
+  content.innerHTML = lines.join('');
+
+  // Animate the receipt drop, then reveal each line
+  container.classList.add('show');
+  const linesEls = content.querySelectorAll('.ck-receipt-line');
+  linesEls.forEach((el, i) => {
+    setTimeout(() => el.classList.add('in'), 1500 + i * 60);
+  });
 }
 
 // --- Confetti ---
