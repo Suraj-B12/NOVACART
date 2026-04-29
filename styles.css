@@ -1625,37 +1625,10 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   50%      { transform: translateX(100%); }
 }
 
-/* Holographic foil sticker (top-right corner) */
-.ck-card-foil {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  background: conic-gradient(
-    from 0deg,
-    #ff00ea, #00d4ff, #00ff88, #ffd700, #ff6b00, #ff00ea
-  );
-  background-size: 200% 200%;
-  animation: ckFoil 4s linear infinite;
-  opacity: 0.85;
-  mix-blend-mode: screen;
-  filter: blur(0.3px);
-  pointer-events: none;
-  z-index: 2;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
-}
-
-@keyframes ckFoil {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .ck-card-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
   position: relative;
   z-index: 3;
 }
@@ -1669,6 +1642,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   padding: 4px;
   position: relative;
   box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  flex-shrink: 0;
 }
 
 .ck-chip-grid {
@@ -1680,53 +1654,49 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   gap: 1px;
 }
 
-.ck-chip-grid > div {
-  background: rgba(0,0,0,0.18);
-}
+.ck-chip-grid > div { background: rgba(0,0,0,0.18); }
+.ck-chip-grid > div:nth-child(5) { background: rgba(0,0,0,0.32); }
 
-.ck-chip-grid > div:nth-child(5) {
-  background: rgba(0,0,0,0.32);
-}
-
-/* Contactless icon */
+/* Contactless icon (sits next to chip) */
 .ck-card-contactless {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   color: rgba(255,255,255,0.85);
   opacity: 0.8;
-  margin-right: 50px;
+  flex-shrink: 0;
 }
 
-.ck-card-contactless svg {
-  width: 100%;
-  height: 100%;
-}
+.ck-card-contactless svg { width: 100%; height: 100%; }
 
-/* Brand logos (drawn with CSS / inline content per brand) */
+/* Brand logo - sits in top-right of card */
 .ck-card-brand {
   position: absolute;
-  bottom: 22px;
+  top: 22px;
   right: 24px;
   z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 38px;
+  min-width: 60px;
 }
 
-/* Visa: italic wordmark */
+/* Visa: bold italic wordmark, gold underline shadow */
 .ck-card[data-brand="visa"] .ck-card-brand::before {
   content: 'VISA';
   font-family: 'Arial Black', 'Helvetica', sans-serif;
   font-style: italic;
   font-weight: 900;
-  font-size: 28px;
-  letter-spacing: -0.5px;
+  font-size: 32px;
+  letter-spacing: -1px;
   color: #fff;
-  text-shadow: 1px 1px 0 #f7b600;
+  text-shadow: 0 2px 0 #f7b600, 0 4px 6px rgba(0,0,0,0.3);
+  line-height: 1;
 }
 
-/* Mastercard: two overlapping circles + lowercase wordmark */
+/* Mastercard: two overlapping circles, larger */
 .ck-card[data-brand="mastercard"] .ck-card-brand {
-  display: flex;
   flex-direction: column;
-  align-items: flex-end;
   gap: 2px;
 }
 
@@ -1734,41 +1704,41 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   content: '';
   display: block;
   width: 56px;
-  height: 32px;
+  height: 36px;
   background:
-    radial-gradient(circle at 16px 16px, #eb001b 16px, transparent 16px),
-    radial-gradient(circle at 40px 16px, #f79e1b 16px, transparent 16px);
+    radial-gradient(circle at 18px 18px, #eb001b 18px, transparent 18.5px),
+    radial-gradient(circle at 38px 18px, #f79e1b 18px, transparent 18.5px);
 }
 
 .ck-card[data-brand="mastercard"] .ck-card-brand::after {
   content: 'mastercard';
   font-family: 'Helvetica Neue', Helvetica, sans-serif;
   font-weight: 700;
-  font-size: 9px;
-  letter-spacing: 0.3px;
+  font-size: 8px;
+  letter-spacing: 0.4px;
   color: #fff;
   text-transform: lowercase;
+  line-height: 1;
 }
 
-/* Amex: classic blue block with white text */
+/* Amex: bordered block with text */
 .ck-card[data-brand="amex"] .ck-card-brand::before {
   content: 'AMERICAN EXPRESS';
   font-family: 'Arial Black', sans-serif;
   font-weight: 900;
   font-size: 9px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   color: #fff;
-  background: rgba(255,255,255,0.1);
-  border: 1.5px solid rgba(255,255,255,0.5);
-  padding: 6px 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.7);
+  padding: 7px 11px;
   display: inline-block;
+  line-height: 1;
 }
 
-/* Maestro: blue + red overlapping circles */
+/* Maestro: blue+red overlapping circles */
 .ck-card[data-brand="maestro"] .ck-card-brand {
-  display: flex;
   flex-direction: column;
-  align-items: flex-end;
   gap: 2px;
 }
 
@@ -1776,10 +1746,10 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   content: '';
   display: block;
   width: 56px;
-  height: 32px;
+  height: 36px;
   background:
-    radial-gradient(circle at 16px 16px, #0079be 16px, transparent 16px),
-    radial-gradient(circle at 40px 16px, #ed0006 16px, transparent 16px);
+    radial-gradient(circle at 18px 18px, #0079be 18px, transparent 18.5px),
+    radial-gradient(circle at 38px 18px, #ed0006 18px, transparent 18.5px);
 }
 
 .ck-card[data-brand="maestro"] .ck-card-brand::after {
@@ -1787,24 +1757,41 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   font-family: 'Helvetica Neue', Helvetica, sans-serif;
   font-weight: 700;
   font-style: italic;
-  font-size: 9px;
+  font-size: 8px;
   color: #fff;
   text-transform: lowercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
+  line-height: 1;
 }
 
-/* RuPay: tricolor wordmark */
+/* RuPay: orange + green tricolor wordmark */
+.ck-card[data-brand="rupay"] .ck-card-brand {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
 .ck-card[data-brand="rupay"] .ck-card-brand::before {
   content: 'RuPay';
   font-family: 'Arial Black', sans-serif;
   font-weight: 900;
-  font-size: 18px;
-  letter-spacing: -0.5px;
-  background: linear-gradient(90deg, #f2a900 0%, #f2a900 35%, #fff 35%, #fff 60%, #097969 60%, #097969 100%);
+  font-size: 22px;
+  letter-spacing: -0.8px;
+  line-height: 1;
+  background: linear-gradient(90deg, #f2a900 0%, #f2a900 38%, #fff 38%, #fff 62%, #097969 62%, #097969 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: none;
+}
+
+.ck-card[data-brand="rupay"] .ck-card-brand::after {
+  content: 'INDIA';
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1;
 }
 
 /* Discover */
@@ -1812,20 +1799,20 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   content: 'DISCOVER';
   font-family: 'Arial Black', sans-serif;
   font-weight: 900;
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.5px;
   color: #fff;
+  line-height: 1;
 }
 
 /* Card number - embossed look */
 .ck-card-number {
-  font-family: 'Courier New', monospace;
+  font-family: 'OCR A Std', 'Courier New', monospace;
   font-size: 22px;
   letter-spacing: 2.5px;
   font-weight: 700;
   text-align: left;
   margin: 0;
-  padding: 0 0 0 0;
   text-shadow:
     0 1px 0 rgba(255,255,255,0.15),
     0 -1px 0 rgba(0,0,0,0.4),
@@ -1836,16 +1823,14 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 
 .ck-card-bottom {
   display: flex;
+  justify-content: space-between;
   align-items: flex-end;
-  gap: 14px;
-  padding-right: 70px;
+  gap: 16px;
   position: relative;
   z-index: 3;
 }
 
-.ck-card-info-right {
-  margin-left: auto;
-}
+.ck-card-info { min-width: 0; }
 
 .ck-card-info-label {
   font-size: 8px;
@@ -1863,6 +1848,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   text-transform: uppercase;
   font-weight: 600;
   text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+  white-space: nowrap;
 }
 
 /* Card back */
@@ -1969,46 +1955,58 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   to   { opacity: 1; transform: translateY(-50%) scale(1); }
 }
 
-.ck-field.ck-valid .ck-card-brand-icon { right: 38px; }
+.ck-field.ck-has-brand.ck-valid::after { display: none; }
+.ck-field.ck-valid .ck-card-brand-icon { right: 14px; }
 
-/* Test card hints */
+/* Test card hints - mini brand-colored pills */
 .ck-card-hints {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-  margin-top: -4px;
-  margin-bottom: 4px;
+  margin: -4px 0 6px;
 }
 
 .ck-hint-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-light);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  margin-right: 4px;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  margin-right: 6px;
 }
 
 .ck-hint-chip {
   font-family: var(--font-body);
-  font-size: 11px;
-  background: var(--bg-light);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 5px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: var(--brand);
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 999px;
   cursor: pointer;
-  letter-spacing: 0.3px;
-  transition: all 0.18s;
-  font-weight: 500;
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 .ck-hint-chip:hover {
-  background: var(--brand);
-  color: #fff;
-  border-color: var(--brand);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  filter: brightness(1.12);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.22);
 }
+
+.ck-hint-chip:active {
+  transform: translateY(0);
+}
+
+.ck-hint-chip[data-brand="visa"]       { background: #1a1f71; }
+.ck-hint-chip[data-brand="mastercard"] { background: linear-gradient(90deg, #eb001b 0%, #eb001b 50%, #f79e1b 50%, #f79e1b 100%); }
+.ck-hint-chip[data-brand="amex"]       { background: #006fcf; }
+.ck-hint-chip[data-brand="maestro"]    { background: linear-gradient(90deg, #0079be 0%, #0079be 50%, #ed0006 50%, #ed0006 100%); }
+.ck-hint-chip[data-brand="rupay"]      { background: linear-gradient(90deg, #f2a900 0%, #f2a900 50%, #097969 50%, #097969 100%); }
 
 /* Maestro brand colors */
 .ck-card[data-brand="maestro"] .ck-card-front,
@@ -2017,152 +2015,6 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 }
 
 .ck-card-brand-icon[data-brand="maestro"] { color: #0079be; }
-
-/* Brand logo SVGs on the card itself */
-.ck-card-brand-logo {
-  height: 38px;
-  width: auto;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  font-family: var(--font-heading);
-  font-style: italic;
-  font-weight: 900;
-  font-size: 22px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
-
-/* Visa: classic blue with serif italic VISA */
-.ck-card[data-brand="visa"] .ck-card-brand {
-  font-family: 'Georgia', serif;
-  font-style: italic;
-  font-weight: 900;
-  font-size: 26px;
-  letter-spacing: 0px;
-  color: #fff;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-/* Mastercard: red+orange overlapping circles */
-.ck-card[data-brand="mastercard"] .ck-card-brand {
-  position: relative;
-  width: 60px;
-  height: 38px;
-  font-size: 0;
-}
-
-.ck-card[data-brand="mastercard"] .ck-card-brand::before,
-.ck-card[data-brand="mastercard"] .ck-card-brand::after {
-  content: '';
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  top: 5px;
-}
-
-.ck-card[data-brand="mastercard"] .ck-card-brand::before {
-  background: #eb001b;
-  left: 0;
-}
-
-.ck-card[data-brand="mastercard"] .ck-card-brand::after {
-  background: #f79e1b;
-  right: 0;
-  mix-blend-mode: multiply;
-}
-
-/* Amex: classic centurion */
-.ck-card[data-brand="amex"] .ck-card-brand {
-  font-family: 'Georgia', serif;
-  font-style: normal;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  text-align: center;
-  background: #fff;
-  color: #006fcf;
-  padding: 4px 8px;
-  line-height: 1.1;
-}
-
-.ck-card[data-brand="amex"] .ck-card-brand::before {
-  content: 'AMERICAN';
-  display: block;
-}
-
-.ck-card[data-brand="amex"] .ck-card-brand::after {
-  content: 'EXPRESS';
-  display: block;
-}
-
-/* Hide the actual text inside Amex brand */
-.ck-card[data-brand="amex"] .ck-card-brand {
-  font-size: 0;
-}
-
-.ck-card[data-brand="amex"] .ck-card-brand::before,
-.ck-card[data-brand="amex"] .ck-card-brand::after {
-  font-size: 11px;
-}
-
-/* Maestro: blue+red overlapping circles */
-.ck-card[data-brand="maestro"] .ck-card-brand {
-  position: relative;
-  width: 60px;
-  height: 38px;
-  font-size: 0;
-}
-
-.ck-card[data-brand="maestro"] .ck-card-brand::before,
-.ck-card[data-brand="maestro"] .ck-card-brand::after {
-  content: '';
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  top: 5px;
-}
-
-.ck-card[data-brand="maestro"] .ck-card-brand::before {
-  background: #0079be;
-  left: 0;
-}
-
-.ck-card[data-brand="maestro"] .ck-card-brand::after {
-  background: #ed0006;
-  right: 0;
-  mix-blend-mode: screen;
-  opacity: 0.95;
-}
-
-/* RuPay: green+orange */
-.ck-card[data-brand="rupay"] .ck-card-brand {
-  font-family: 'Helvetica', sans-serif;
-  font-style: normal;
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 0px;
-  background: linear-gradient(90deg, #097969 50%, #f2a900 50%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: none;
-}
-
-/* Discover: orange ribbon style */
-.ck-card[data-brand="discover"] .ck-card-brand {
-  font-family: 'Helvetica', sans-serif;
-  font-style: normal;
-  font-weight: 900;
-  font-size: 16px;
-  letter-spacing: 0;
-  color: #fff;
-  text-transform: lowercase;
-}
 
 .ck-note {
   font-size: 12px;

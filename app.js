@@ -722,6 +722,9 @@ function onCardNumberInput(input) {
   iconEl.dataset.brand = brand;
   iconEl.textContent = brand ? brand.toUpperCase() : '';
   iconEl.classList.toggle('show', !!brand);
+  // Hide the generic checkmark when brand badge is visible
+  const cardField = input.closest('.ck-field');
+  if (cardField) cardField.classList.toggle('ck-has-brand', !!brand);
 
   // Format input value
   const maxLen = brand === 'amex' ? 15 : 16;

@@ -619,7 +619,6 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
               <div class="ck-card" id="ck-card-preview">
                 <div class="ck-card-front">
                   <div class="ck-card-shine"></div>
-                  <div class="ck-card-foil"></div>
                   <div class="ck-card-top">
                     <div class="ck-card-chip">
                       <div class="ck-chip-grid">
@@ -636,17 +635,17 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
                       </svg>
                     </div>
                   </div>
+                  <div class="ck-card-brand" id="ck-card-brand"></div>
                   <div class="ck-card-number" id="ck-card-display">•••• •••• •••• ••••</div>
                   <div class="ck-card-bottom">
                     <div class="ck-card-info">
                       <div class="ck-card-info-label">Card Holder</div>
                       <div class="ck-card-info-value" id="ck-name-display">YOUR NAME</div>
                     </div>
-                    <div class="ck-card-info ck-card-info-right">
+                    <div class="ck-card-info">
                       <div class="ck-card-info-label">Expires</div>
                       <div class="ck-card-info-value" id="ck-expiry-display">MM/YY</div>
                     </div>
-                    <div class="ck-card-brand" id="ck-card-brand"></div>
                   </div>
                 </div>
                 <div class="ck-card-back">
@@ -674,12 +673,12 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
             </div>
 
             <div class="ck-card-hints">
-              <span class="ck-hint-label">Try:</span>
-              <button type="button" class="ck-hint-chip" onclick="fillTestCard('visa')">Visa 4111…</button>
-              <button type="button" class="ck-hint-chip" onclick="fillTestCard('mastercard')">MasterCard 5500…</button>
-              <button type="button" class="ck-hint-chip" onclick="fillTestCard('amex')">Amex 3782…</button>
-              <button type="button" class="ck-hint-chip" onclick="fillTestCard('maestro')">Maestro 5018…</button>
-              <button type="button" class="ck-hint-chip" onclick="fillTestCard('rupay')">RuPay 6080…</button>
+              <span class="ck-hint-label">Test cards</span>
+              <button type="button" class="ck-hint-chip" data-brand="visa" onclick="fillTestCard('visa')">Visa</button>
+              <button type="button" class="ck-hint-chip" data-brand="mastercard" onclick="fillTestCard('mastercard')">Mastercard</button>
+              <button type="button" class="ck-hint-chip" data-brand="amex" onclick="fillTestCard('amex')">Amex</button>
+              <button type="button" class="ck-hint-chip" data-brand="maestro" onclick="fillTestCard('maestro')">Maestro</button>
+              <button type="button" class="ck-hint-chip" data-brand="rupay" onclick="fillTestCard('rupay')">RuPay</button>
             </div>
 
             <div class="ck-field">
