@@ -614,9 +614,17 @@ function liveValidate(input, kind) {
     case 'card': {
       const digits = v.replace(/\D/g, '');
       const brand = detectCardBrand(digits);
-      const expectedLen = brand === 'amex' ? 15 : 16;
-      valid = digits.length === expectedLen && luhnCheck(digits);
-      msg = valid ? 'Card verified ✓' : (digits.length >= 13 ? 'Invalid card' : (digits ? `${digits.length}/${expectedLen} digits` : ''));
+      const expectedLen = brand === 'amex' ? 15 : (brand === 'maestro' ? 16 : 16);
+      if (!brand) {
+        valid = false;
+        msg = digits.length > 0 ? 'Unknown card type' : '';
+      } else if (digits.length < expectedLen) {
+        valid = false;
+        msg = `${digits.length}/${expectedLen} digits`;
+      } else {
+        valid = true;
+        msg = `${brand.toUpperCase()} card`;
+      }
       break;
     }
     case 'cardname':
@@ -659,27 +667,32 @@ function liveValidate(input, kind) {
 
 function detectCardBrand(digits) {
   if (!digits) return '';
-  if (/^4/.test(digits)) return 'visa';
-  if (/^(5[1-5]|2[2-7])/.test(digits)) return 'mastercard';
-  if (/^3[47]/.test(digits)) return 'amex';
-  if (/^6(011|5|4[4-9])/.test(digits)) return 'discover';
-  if (/^(60|65|81|82)/.test(digits)) return 'rupay';
+  // Order matters: more specific patterns first
+  if (/^3[47]/.test(digits)) return 'amex';                     // 34, 37
+  if (/^4/.test(digits)) return 'visa';                          // 4
+  if (/^(5[1-5]|2[2-7])/.test(digits)) return 'mastercard';      // 51-55, 22-27
+  if (/^(50|56|57|58|6304|6759|6761|6762|6763)/.test(digits)) return 'maestro';  // Maestro prefixes
+  if (/^6011/.test(digits)) return 'discover';                   // 6011
+  if (/^(508[5-9]|60[6-9]|652|653|81[78])/.test(digits)) return 'rupay';  // RuPay
   return '';
 }
 
-// --- Luhn algorithm ---
+// --- Test card autofill (for demo) ---
 
-function luhnCheck(digits) {
-  if (!digits || digits.length < 13) return false;
-  let sum = 0;
-  let alt = false;
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let d = parseInt(digits[i]);
-    if (alt) { d *= 2; if (d > 9) d -= 9; }
-    sum += d;
-    alt = !alt;
-  }
-  return sum % 10 === 0;
+function fillTestCard(brand) {
+  const testNumbers = {
+    visa:       '4111111111111111',
+    mastercard: '5500000000000004',
+    amex:       '378282246310005',
+    maestro:    '5018000000000001',
+    rupay:      '6080000000000000'
+  };
+  const number = testNumbers[brand];
+  if (!number) return;
+
+  const cardInput = document.getElementById('ck-card');
+  cardInput.value = number;
+  onCardNumberInput(cardInput);
 }
 
 // --- Card preview live updates ---

@@ -1411,25 +1411,26 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 
 .ck-field label {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 14px;
   color: var(--text-light);
   pointer-events: none;
-  transition: all 0.2s ease-out;
-  background: transparent;
-  padding: 0 4px;
+  transition: all 0.18s ease-out;
+  background: var(--bg);
+  padding: 0 6px;
+  line-height: 1;
 }
 
 .ck-field input:focus + label,
 .ck-field input:not(:placeholder-shown) + label {
   top: 0;
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--brand);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .ck-field.ck-valid input { border-color: #4CAF50; }
@@ -1727,6 +1728,199 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 }
 
 .ck-field.ck-valid .ck-card-brand-icon { right: 38px; }
+
+/* Test card hints */
+.ck-card-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+
+.ck-hint-label {
+  font-size: 11px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.ck-hint-chip {
+  font-family: var(--font-body);
+  font-size: 11px;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 10px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.18s;
+  font-weight: 500;
+}
+
+.ck-hint-chip:hover {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+  transform: translateY(-1px);
+}
+
+/* Maestro brand colors */
+.ck-card[data-brand="maestro"] .ck-card-front,
+.ck-card[data-brand="maestro"] .ck-card-back {
+  background: linear-gradient(135deg, #0079be 0%, #00a2e5 50%, #ed0006 100%);
+}
+
+.ck-card-brand-icon[data-brand="maestro"] { color: #0079be; }
+
+/* Brand logo SVGs on the card itself */
+.ck-card-brand-logo {
+  height: 38px;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Visa: classic blue with serif italic VISA */
+.ck-card[data-brand="visa"] .ck-card-brand {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: 0px;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Mastercard: red+orange overlapping circles */
+.ck-card[data-brand="mastercard"] .ck-card-brand {
+  position: relative;
+  width: 60px;
+  height: 38px;
+  font-size: 0;
+}
+
+.ck-card[data-brand="mastercard"] .ck-card-brand::before,
+.ck-card[data-brand="mastercard"] .ck-card-brand::after {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  top: 5px;
+}
+
+.ck-card[data-brand="mastercard"] .ck-card-brand::before {
+  background: #eb001b;
+  left: 0;
+}
+
+.ck-card[data-brand="mastercard"] .ck-card-brand::after {
+  background: #f79e1b;
+  right: 0;
+  mix-blend-mode: multiply;
+}
+
+/* Amex: classic centurion */
+.ck-card[data-brand="amex"] .ck-card-brand {
+  font-family: 'Georgia', serif;
+  font-style: normal;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: center;
+  background: #fff;
+  color: #006fcf;
+  padding: 4px 8px;
+  line-height: 1.1;
+}
+
+.ck-card[data-brand="amex"] .ck-card-brand::before {
+  content: 'AMERICAN';
+  display: block;
+}
+
+.ck-card[data-brand="amex"] .ck-card-brand::after {
+  content: 'EXPRESS';
+  display: block;
+}
+
+/* Hide the actual text inside Amex brand */
+.ck-card[data-brand="amex"] .ck-card-brand {
+  font-size: 0;
+}
+
+.ck-card[data-brand="amex"] .ck-card-brand::before,
+.ck-card[data-brand="amex"] .ck-card-brand::after {
+  font-size: 11px;
+}
+
+/* Maestro: blue+red overlapping circles */
+.ck-card[data-brand="maestro"] .ck-card-brand {
+  position: relative;
+  width: 60px;
+  height: 38px;
+  font-size: 0;
+}
+
+.ck-card[data-brand="maestro"] .ck-card-brand::before,
+.ck-card[data-brand="maestro"] .ck-card-brand::after {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  top: 5px;
+}
+
+.ck-card[data-brand="maestro"] .ck-card-brand::before {
+  background: #0079be;
+  left: 0;
+}
+
+.ck-card[data-brand="maestro"] .ck-card-brand::after {
+  background: #ed0006;
+  right: 0;
+  mix-blend-mode: screen;
+  opacity: 0.95;
+}
+
+/* RuPay: green+orange */
+.ck-card[data-brand="rupay"] .ck-card-brand {
+  font-family: 'Helvetica', sans-serif;
+  font-style: normal;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0px;
+  background: linear-gradient(90deg, #097969 50%, #f2a900 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+}
+
+/* Discover: orange ribbon style */
+.ck-card[data-brand="discover"] .ck-card-brand {
+  font-family: 'Helvetica', sans-serif;
+  font-style: normal;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0;
+  color: #fff;
+  text-transform: lowercase;
+}
 
 .ck-note {
   font-size: 12px;

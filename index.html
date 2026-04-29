@@ -659,6 +659,15 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
               <div class="ck-feedback"></div>
             </div>
 
+            <div class="ck-card-hints">
+              <span class="ck-hint-label">Try:</span>
+              <button type="button" class="ck-hint-chip" onclick="fillTestCard('visa')">Visa 4111…</button>
+              <button type="button" class="ck-hint-chip" onclick="fillTestCard('mastercard')">MasterCard 5500…</button>
+              <button type="button" class="ck-hint-chip" onclick="fillTestCard('amex')">Amex 3782…</button>
+              <button type="button" class="ck-hint-chip" onclick="fillTestCard('maestro')">Maestro 5018…</button>
+              <button type="button" class="ck-hint-chip" onclick="fillTestCard('rupay')">RuPay 6080…</button>
+            </div>
+
             <div class="ck-field">
               <input type="text" id="ck-cardname" required oninput="onCardNameInput(this)" onfocus="flipCard(false)" onblur="liveValidate(this,'cardname')" placeholder=" ">
               <label>Name on Card</label>
