@@ -528,74 +528,217 @@ PUT  with rev 1  → 409 Conflict!  (stale)</pre>
     <!-- Checkout Modal -->
     <div class="checkout-overlay" id="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
       <div class="checkout-modal" id="checkout-modal">
+
+        <!-- Header with progress -->
         <div class="checkout-header">
-          <h3>Checkout</h3>
-          <button onclick="closeCheckout()" aria-label="Close">&times;</button>
+          <div class="checkout-header-top">
+            <h3>Secure Checkout</h3>
+            <button onclick="closeCheckout()" aria-label="Close" class="checkout-close">&times;</button>
+          </div>
+          <div class="checkout-progress">
+            <div class="checkout-step-label active" data-step="1">
+              <div class="checkout-step-circle">1</div>
+              <span>Shipping</span>
+            </div>
+            <div class="checkout-progress-line">
+              <div class="checkout-progress-fill" id="ck-progress-fill"></div>
+            </div>
+            <div class="checkout-step-label" data-step="2">
+              <div class="checkout-step-circle">2</div>
+              <span>Payment</span>
+            </div>
+            <div class="checkout-progress-line">
+              <div class="checkout-progress-fill" id="ck-progress-fill-2"></div>
+            </div>
+            <div class="checkout-step-label" data-step="3">
+              <div class="checkout-step-circle">3</div>
+              <span>Review</span>
+            </div>
+          </div>
         </div>
+
         <div class="checkout-body" id="checkout-body">
-          <form id="checkout-form" class="checkout-form" onsubmit="submitOrder(event)">
 
-            <div class="checkout-section">
-              <div class="checkout-section-title">Shipping Information</div>
-              <div class="checkout-grid-2">
-                <label class="checkout-field">
-                  <span>Full Name</span>
-                  <input type="text" id="ck-name" required autocomplete="name">
-                </label>
-                <label class="checkout-field">
-                  <span>Phone</span>
-                  <input type="tel" id="ck-phone" required pattern="[0-9 +-]{10,}" autocomplete="tel">
-                </label>
+          <!-- STEP 1: SHIPPING -->
+          <div class="ck-step ck-step-active" id="ck-step-1">
+            <div class="ck-step-title">Where should we deliver?</div>
+            <div class="ck-step-subtitle">Enter your shipping details</div>
+
+            <div class="ck-field">
+              <input type="text" id="ck-name" required autocomplete="name" oninput="liveValidate(this,'name')" onblur="liveValidate(this,'name')" placeholder=" ">
+              <label>Full Name</label>
+              <div class="ck-feedback"></div>
+            </div>
+
+            <div class="ck-grid-2">
+              <div class="ck-field">
+                <input type="tel" id="ck-phone" required pattern="[0-9]{10}" maxlength="10" autocomplete="tel" oninput="liveValidate(this,'phone')" onblur="liveValidate(this,'phone')" placeholder=" ">
+                <label>Phone (10 digits)</label>
+                <div class="ck-feedback"></div>
               </div>
-              <label class="checkout-field">
-                <span>Email</span>
-                <input type="email" id="ck-email" required autocomplete="email">
-              </label>
-              <label class="checkout-field">
-                <span>Address</span>
-                <input type="text" id="ck-address" required autocomplete="street-address" placeholder="House no, Street, Area">
-              </label>
-              <div class="checkout-grid-2">
-                <label class="checkout-field">
-                  <span>City</span>
-                  <input type="text" id="ck-city" required autocomplete="address-level2">
-                </label>
-                <label class="checkout-field">
-                  <span>Pincode</span>
-                  <input type="text" id="ck-pincode" required pattern="[0-9]{6}" maxlength="6">
-                </label>
+              <div class="ck-field">
+                <input type="email" id="ck-email" required autocomplete="email" oninput="liveValidate(this,'email')" onblur="liveValidate(this,'email')" placeholder=" ">
+                <label>Email Address</label>
+                <div class="ck-feedback"></div>
               </div>
             </div>
 
-            <div class="checkout-section">
-              <div class="checkout-section-title">Payment Details</div>
-              <label class="checkout-field">
-                <span>Card Number</span>
-                <input type="text" id="ck-card" required maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)">
-              </label>
-              <div class="checkout-grid-2">
-                <label class="checkout-field">
-                  <span>Expiry (MM/YY)</span>
-                  <input type="text" id="ck-expiry" required maxlength="5" placeholder="12/28" oninput="formatExpiry(this)">
-                </label>
-                <label class="checkout-field">
-                  <span>CVV</span>
-                  <input type="password" id="ck-cvv" required maxlength="4" pattern="[0-9]{3,4}" placeholder="•••">
-                </label>
-              </div>
-              <div class="checkout-note">Demo only. No real payment is processed.</div>
+            <div class="ck-field">
+              <input type="text" id="ck-address" required autocomplete="street-address" oninput="liveValidate(this,'address')" onblur="liveValidate(this,'address')" placeholder=" ">
+              <label>Street Address</label>
+              <div class="ck-feedback"></div>
             </div>
 
-            <div class="checkout-section checkout-summary" id="checkout-summary">
-              <!-- order summary injected here -->
+            <div class="ck-grid-2">
+              <div class="ck-field">
+                <input type="text" id="ck-city" required autocomplete="address-level2" oninput="liveValidate(this,'city')" onblur="liveValidate(this,'city')" placeholder=" ">
+                <label>City</label>
+                <div class="ck-feedback"></div>
+              </div>
+              <div class="ck-field">
+                <input type="text" id="ck-pincode" required pattern="[0-9]{6}" maxlength="6" oninput="liveValidate(this,'pincode')" onblur="liveValidate(this,'pincode')" placeholder=" ">
+                <label>Pincode (6 digits)</label>
+                <div class="ck-feedback"></div>
+              </div>
             </div>
+
+            <div class="ck-actions">
+              <button type="button" class="btn-primary ck-next" onclick="goToStep(2)">
+                Continue to Payment <span class="ck-arrow">→</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 2: PAYMENT -->
+          <div class="ck-step" id="ck-step-2">
+            <div class="ck-step-title">Payment Details</div>
+            <div class="ck-step-subtitle">Your card details are encrypted and secure</div>
+
+            <!-- 3D Card Preview -->
+            <div class="ck-card-wrap">
+              <div class="ck-card" id="ck-card-preview">
+                <div class="ck-card-front">
+                  <div class="ck-card-shine"></div>
+                  <div class="ck-card-top">
+                    <div class="ck-card-chip">
+                      <div class="ck-chip-line"></div>
+                      <div class="ck-chip-line"></div>
+                      <div class="ck-chip-line"></div>
+                    </div>
+                    <div class="ck-card-brand" id="ck-card-brand"></div>
+                  </div>
+                  <div class="ck-card-number" id="ck-card-display">•••• •••• •••• ••••</div>
+                  <div class="ck-card-bottom">
+                    <div class="ck-card-info">
+                      <div class="ck-card-info-label">Card Holder</div>
+                      <div class="ck-card-info-value" id="ck-name-display">YOUR NAME</div>
+                    </div>
+                    <div class="ck-card-info">
+                      <div class="ck-card-info-label">Expires</div>
+                      <div class="ck-card-info-value" id="ck-expiry-display">MM/YY</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ck-card-back">
+                  <div class="ck-card-magstripe"></div>
+                  <div class="ck-card-cvv-box">
+                    <div class="ck-card-info-label">CVV</div>
+                    <div class="ck-card-cvv" id="ck-cvv-display">•••</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ck-field">
+              <input type="text" id="ck-card" required maxlength="19" inputmode="numeric"
+                oninput="onCardNumberInput(this)"
+                onfocus="flipCard(false)"
+                placeholder=" ">
+              <label>Card Number</label>
+              <div class="ck-card-brand-icon" id="ck-card-brand-icon"></div>
+              <div class="ck-feedback"></div>
+            </div>
+
+            <div class="ck-field">
+              <input type="text" id="ck-cardname" required oninput="onCardNameInput(this)" onfocus="flipCard(false)" onblur="liveValidate(this,'cardname')" placeholder=" ">
+              <label>Name on Card</label>
+              <div class="ck-feedback"></div>
+            </div>
+
+            <div class="ck-grid-2">
+              <div class="ck-field">
+                <input type="text" id="ck-expiry" required maxlength="5" inputmode="numeric"
+                  oninput="onExpiryInput(this)"
+                  onfocus="flipCard(false)"
+                  placeholder=" ">
+                <label>MM/YY</label>
+                <div class="ck-feedback"></div>
+              </div>
+              <div class="ck-field">
+                <input type="password" id="ck-cvv" required maxlength="4" inputmode="numeric"
+                  oninput="onCvvInput(this)"
+                  onfocus="flipCard(true)"
+                  onblur="flipCard(false)"
+                  placeholder=" ">
+                <label>CVV</label>
+                <div class="ck-feedback"></div>
+              </div>
+            </div>
+
+            <div class="ck-note">
+              <span class="ck-lock-icon">🔒</span> Demo mode. No real payment is processed.
+            </div>
+
+            <div class="ck-actions">
+              <button type="button" class="btn-secondary ck-back" onclick="goToStep(1)">
+                <span class="ck-arrow">←</span> Back
+              </button>
+              <button type="button" class="btn-primary ck-next" onclick="goToStep(3)">
+                Review Order <span class="ck-arrow">→</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: REVIEW -->
+          <div class="ck-step" id="ck-step-3">
+            <div class="ck-step-title">Review Your Order</div>
+            <div class="ck-step-subtitle">Confirm everything looks right</div>
+
+            <div class="ck-review-section" id="ck-review-shipping"></div>
+            <div class="ck-review-section" id="ck-review-payment"></div>
+            <div class="ck-review-section ck-review-summary" id="ck-review-summary"></div>
 
             <div id="checkout-status" class="checkout-status"></div>
 
-            <button type="submit" class="btn-primary checkout-submit" id="checkout-submit">
-              Place Order
-            </button>
-          </form>
+            <div class="ck-actions">
+              <button type="button" class="btn-secondary ck-back" onclick="goToStep(2)">
+                <span class="ck-arrow">←</span> Back
+              </button>
+              <button type="button" class="btn-primary ck-place-order" id="checkout-submit" onclick="submitOrder(event)">
+                <span class="ck-btn-text">Place Order</span>
+                <span class="ck-btn-spinner"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 4: SUCCESS -->
+          <div class="ck-step ck-step-success" id="ck-step-success">
+            <div class="ck-confetti-container" id="ck-confetti"></div>
+            <div class="ck-success-content">
+              <svg class="ck-success-check" viewBox="0 0 80 80">
+                <circle class="ck-success-circle" cx="40" cy="40" r="36"/>
+                <path class="ck-success-path" d="M22 42 L36 56 L60 30"/>
+              </svg>
+              <h2 class="ck-success-title">Order Placed!</h2>
+              <p class="ck-success-message" id="ck-success-message">Thank you for shopping with us.</p>
+              <div class="ck-success-orderid" id="ck-success-orderid"></div>
+              <p class="ck-success-eta">Estimated delivery: <strong>3-5 business days</strong></p>
+              <button class="btn-primary ck-success-btn" onclick="closeCheckout(); showHome();">
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
